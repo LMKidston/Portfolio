@@ -70,7 +70,7 @@
             min-height: 100vh;
             display: flex; align-items: center; justify-content: center;
             padding: 160px 48px 120px;
-            
+            border-bottom: 1px solid var(--color-border);
         }
         .hero-content { max-width: 780px; text-align: center; }
         .hero-eyebrow {
@@ -183,7 +183,6 @@
         .highlights {
             padding: 100px 48px;
             border-bottom: 1px solid var(--color-border);
-            
         }
         .highlights-inner { max-width: 1200px; margin: 0 auto; }
         .section-label {
@@ -236,7 +235,6 @@
         .experience {
             padding: 100px 48px;
             border-bottom: 1px solid var(--color-border);
-            
         }
         .experience-inner { max-width: 1200px; margin: 0 auto; }
         .timeline { margin-top: 64px; }
@@ -249,7 +247,8 @@
         }
         .timeline-item:first-child { border-top: none; padding-top: 0; }
         .timeline-date {
-            font-size: 13px; font-weight: 400;            letter-spacing: 0.04em;
+            font-size: 13px; font-weight: 400;
+            letter-spacing: 0.04em;
             color: var(--color-text-tertiary);
             padding-top: 4px;
         }
@@ -290,22 +289,20 @@
         .case-studies {
             padding: 100px 48px;
             border-bottom: 1px solid var(--color-border);
-            
         }
         .case-studies-inner {
-            max-width: 1200px;
+            max-width: 800px;
             margin: 0 auto;
         }
         .case-studies-header {
-            margin-bottom: 64px;
+            margin-bottom: 72px;
         }
         .case-study-card {
-            border: 1px solid var(--color-border);
-            padding: 48px;
-            margin-bottom: 24px;
+            padding: 48px 0;
+            border-bottom: 1px solid var(--color-border);
         }
         .case-study-card:last-child {
-            margin-bottom: 0;
+            border-bottom: none;
         }
         .case-study-context {
             font-size: 11px;
@@ -352,9 +349,8 @@
         /* === COVERAGE === */
         .coverage {
             padding: 100px 48px;
-            border-bottom: 1px solid var(--color-border);
             background: var(--color-bg-alt);
-            
+            border-bottom: 1px solid var(--color-border);
         }
         .coverage-inner { max-width: 1200px; margin: 0 auto; }
         .articles-grid {
@@ -367,7 +363,7 @@
         .article-card {
             padding: 40px 36px;
             border-right: 1px solid var(--color-border);
-            
+            border-bottom: 1px solid var(--color-border);
             text-decoration: none; color: inherit;
             transition: background 0.3s ease;
             display: flex; flex-direction: column;
@@ -407,7 +403,7 @@
         .contact {
             padding: 120px 48px;
             text-align: center;
-            
+            border-bottom: 1px solid var(--color-border);
         }
         .contact-inner { max-width: 560px; margin: 0 auto; }
         .contact-headline {
@@ -489,7 +485,7 @@
                 background: var(--color-bg);
                 flex-direction: column; padding: 32px 24px;
                 gap: 24px;
-                
+                border-bottom: 1px solid var(--color-border);
             }
             .nav-links.open { display: flex; }
             .hero { padding: 120px 24px 80px; min-height: auto; }
@@ -773,11 +769,4 @@
             });
         }, { threshold: 0.1 });
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-        document.querySelectorAll(".nav-links a").forEach(link => {
-            link.addEventListener("click", () => {
-                document.querySelector(".nav-links").classList.remove("open");
-            });
-        });
-    </script>
-</body>
-</html>
+        docum
