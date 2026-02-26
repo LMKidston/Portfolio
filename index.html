@@ -2,28 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-REENLCHHT8"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-REENLCHHT8');
-    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lilian Kidston | VP Marketing</title>
-    <meta name="google-site-verification" content="jqTpE8HKAJ3KE6NjS96JlAPo24jxZWrwTtZF6oxSnkU" />
     <meta name="description" content="I build both the narrative and the number. VP Marketing leader combining Fortune 500 brand strategy with hands-on demand gen leadership.">
-    <meta property="og:title" content="Lilian Kidston | Marketing Leader">
-    <meta property="og:description" content="Where narrative meets number. A marketing leader who builds both.">
-    <meta property="og:image" content="https://liliankidston.com/og-image.png">
-    <meta property="og:url" content="https://liliankidston.com">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Lilian Kidston | Marketing Leader">
-    <meta name="twitter:description" content="Where narrative meets number. A marketing leader who builds both.">
-    <meta name="twitter:image" content="https://liliankidston.com/og-image.png">
-    <link rel="canonical" href="https://liliankidston.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -304,6 +285,67 @@
             letter-spacing: 0.04em;
         }
 
+        /* === STRATEGIC WORK / CASE STUDIES === */
+        .case-studies {
+            padding: 100px 48px;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .case-studies-inner {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .case-studies-header {
+            margin-bottom: 72px;
+        }
+        .case-study-card {
+            padding: 48px 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .case-study-card:last-child {
+            border-bottom: none;
+        }
+        .case-study-context {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--color-text-tertiary);
+            margin-bottom: 20px;
+        }
+        .case-study-title {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 400;
+            line-height: 1.25;
+            letter-spacing: -0.01em;
+            margin-bottom: 32px;
+        }
+        .case-study-blocks {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+        .case-study-block-label {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--color-text-tertiary);
+            margin-bottom: 10px;
+        }
+        .case-study-block-text {
+            font-size: 15px;
+            color: var(--color-text-secondary);
+            line-height: 1.85;
+            font-weight: 300;
+        }
+        .case-study-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 28px;
+        }
+
         /* === COVERAGE === */
         .coverage {
             padding: 100px 48px;
@@ -449,8 +491,10 @@
             .hero { padding: 120px 24px 80px; min-height: auto; }
             .hero-stats { grid-template-columns: 1fr 1fr; }
             .hero-stat-card { padding: 20px 16px; border-bottom: 1px solid var(--color-border-light); }
-            .hero-stat-card:nth-child(odd) { border-left: none; }
+            .hero-stat-card:nth-child(2n) { border-left: none; }
             .highlights, .experience, .coverage, .contact { padding: 72px 24px; }
+            .case-studies { padding: 72px 24px; }
+            .case-study-title { font-size: 24px; }
             .highlights-grid { grid-template-columns: 1fr; }
             .highlight-card { border-left: none; border-bottom: 1px solid var(--color-border-light); padding: 28px 0; }
             .highlight-card:last-child { border-bottom: none; }
@@ -477,6 +521,7 @@
             </button>
             <ul class="nav-links">
                 <li><a href="#experience">Experience</a></li>
+                <li><a href="#strategic-work">Strategic Work</a></li>
                 <li><a href="#coverage">Coverage</a></li>
                 <li><a href="#contact">About</a></li>
             </ul>
@@ -566,6 +611,91 @@
         </div>
     </section>
 
+    <!-- === STRATEGIC WORK === -->
+    <section class="case-studies" id="strategic-work">
+        <div class="case-studies-inner">
+            <div class="case-studies-header">
+                <p class="section-label reveal">Strategic Work</p>
+                <h2 class="section-title reveal">Strategy in practice.</h2>
+            </div>
+
+            <div class="case-study-card reveal">
+                <div class="case-study-context">Category Creation</div>
+                <h3 class="case-study-title">Building the Maturity Model for a New Category</h3>
+                <div class="case-study-blocks">
+                    <div class="case-study-block">
+                        <div class="case-study-block-label">The Problem</div>
+                        <p class="case-study-block-text">The company was repositioning from a known product category into a new one that didn't yet exist in buyers' minds. Without a shared vocabulary for maturity, sales teams had no way to anchor conversations beyond product features.</p>
+                    </div>
+                    <div class="case-study-block">
+                        <div class="case-study-block-label">The Approach</div>
+                        <p class="case-study-block-text">Designed a maturity model spanning four domains: culture, technology, compliance, and outcomes, with five maturity levels. Structured it as a self-assessment framework so buyers could identify gaps and prioritize investments. Briefed an industry analyst for external validation.</p>
+                    </div>
+                    <div class="case-study-block">
+                        <div class="case-study-block-label">The Outcome</div>
+                        <p class="case-study-block-text">The model gave sales a tool to move conversations from product features to strategic readiness. Buyer meetings shifted from "what does your product do" to "where are we on the maturity curve." An industry analyst validated the framework, and it was prepared for launch at the company's annual user conference.</p>
+                    </div>
+                </div>
+                <div class="case-study-tags">
+                    <span class="tag">Category Creation</span>
+                    <span class="tag">Product Marketing</span>
+                    <span class="tag">Analyst Relations</span>
+                    <span class="tag">Sales Enablement</span>
+                </div>
+            </div>
+
+            <div class="case-study-card reveal">
+                <div class="case-study-context">Customer Marketing &middot; Organizational Redesign</div>
+                <h3 class="case-study-title">Proving That Marketing Drives Retention</h3>
+                <div class="case-study-blocks">
+                    <div class="case-study-block">
+                        <div class="case-study-block-label">The Problem</div>
+                        <p class="case-study-block-text">Customer marketing was fragmented: dispersed across field and hybrid roles, triggered only at renewal, with no unified strategy or measurement. The company had no data on whether marketing touchpoints influenced retention. Churn rates were rising.</p>
+                    </div>
+                    <div class="case-study-block">
+                        <div class="case-study-block-label">The Approach</div>
+                        <p class="case-study-block-text">Consolidated dispersed roles into a dedicated function. Replaced renewal-only outreach with continuous lifecycle touchpoints and built the measurement infrastructure to track engagement against retention outcomes.</p>
+                    </div>
+                    <div class="case-study-block">
+                        <div class="case-study-block-label">The Outcome</div>
+                        <p class="case-study-block-text">Generated meaningful pipeline and new ARR in year one from a function that previously didn't exist as a unified team. Identified the first-ever correlation between marketing engagement and retention risk: customers who engaged with marketing churned at measurably lower rates. That gave leadership a data-backed case for increased retention investment even as company-wide churn was rising.</p>
+                    </div>
+                </div>
+                <div class="case-study-tags">
+                    <span class="tag">Customer Marketing</span>
+                    <span class="tag">Retention</span>
+                    <span class="tag">Pipeline Generation</span>
+                    <span class="tag">Data-Driven</span>
+                </div>
+            </div>
+
+            <div class="case-study-card reveal">
+                <div class="case-study-context">Competitive Intelligence &middot; Team Transformation</div>
+                <h3 class="case-study-title">From Sales Support to Strategic Function</h3>
+                <div class="case-study-blocks">
+                    <div class="case-study-block">
+                        <div class="case-study-block-label">The Problem</div>
+                        <p class="case-study-block-text">The CI team was underutilized. They had deep market insight, but their days went to one-off sales requests: battle cards, solution sheets, feature comparisons. A team capable of shaping how the company competed was stuck reacting to how it sold.</p>
+                    </div>
+                    <div class="case-study-block">
+                        <div class="case-study-block-label">The Approach</div>
+                        <p class="case-study-block-text">Started with the structural fix: scalable frameworks for the repetitive requests so the team wasn't buried in them. Then the harder work: helping them see that their value wasn't in saying yes to every ask, but in the market insight only they could provide. Once that clicked, the team started operating differently on their own.</p>
+                    </div>
+                    <div class="case-study-block">
+                        <div class="case-study-block-label">The Outcome</div>
+                        <p class="case-study-block-text">Leader recognition in the core category. Strong Performer in an adjacent emerging one. The frameworks stuck, the mindset shift held, and a function that only served sales became a strategic input across the business.</p>
+                    </div>
+                </div>
+                <div class="case-study-tags">
+                    <span class="tag">Competitive Intelligence</span>
+                    <span class="tag">Analyst Relations</span>
+                    <span class="tag">Sales Enablement</span>
+                    <span class="tag">Product Marketing</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section class="coverage" id="coverage">
         <div class="coverage-inner">
             <p class="section-label reveal">Featured Coverage</p>
@@ -614,6 +744,10 @@
                     <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
                     LinkedIn
                 </a>
+                <a href="tel:5165824901" class="contact-link">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+                    (516) 582-4901
+                </a>
             </div>
         </div>
     </section>
@@ -635,11 +769,4 @@
             });
         }, { threshold: 0.1 });
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                document.querySelector('.nav-links').classList.remove('open');
-            });
-        });
-    </script>
-</body>
-</html>
+        docum
