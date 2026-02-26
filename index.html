@@ -242,7 +242,7 @@
             display: grid;
             grid-template-columns: 200px 1fr;
             gap: 48px;
-            padding: 48px 0;
+            padding: 40px 0 40px 36px;
             border-top: 1px solid var(--color-border-light);
         }
         .timeline-item:first-child { border-top: none; padding-top: 0; }
@@ -291,14 +291,17 @@
             border-bottom: 1px solid var(--color-border);
         }
         .case-studies-inner {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
         }
         .case-studies-header {
-            margin-bottom: 72px;
+            margin-bottom: 48px;
+            margin-bottom: 40px;
         }
         .case-study-card {
-            padding: 48px 0;
+            border-left: 3px solid var(--color-border);
+            border-left: 3px solid var(--color-border);
+            padding: 40px 0 40px 36px;
             border-bottom: 1px solid var(--color-border);
         }
         .case-study-card:last-child {
@@ -769,4 +772,11 @@
             });
         }, { threshold: 0.1 });
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-        docum
+        document.querySelectorAll(".nav-links a").forEach(link => {
+            link.addEventListener("click", () => {
+                document.querySelector(".nav-links").classList.remove("open");
+            });
+        });
+    </script>
+</body>
+</html>
