@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cipher — CMO Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f9f9f7; color: #1a1a1a; padding: 2rem; }
+  .dash { max-width: 960px; margin: 0 auto; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+  .brand { font-size: 13px; font-weight: 500; color: #595959; letter-spacing: 0.08em; text-transform: uppercase; }
+  .brand span { color: #1a1a1a; }
+  .date { font-size: 12px; color: #888; margin-top: 4px; }
+  .illustrative-banner { background: #FDF8EE; border: 0.5px solid #C8A060; border-radius: 8px; padding: 10px 16px; margin-bottom: 1.5rem; font-size: 12px; color: #7A5C20; }
+  .illustrative-banner strong { font-weight: 600; }
+  .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .metric { background: #f1efe8; border-radius: 8px; padding: 1rem; }
+  .metric-label { font-size: 12px; color: #595959; margin-bottom: 6px; }
+  .metric-value { font-size: 22px; font-weight: 500; color: #1a1a1a; }
+  .metric-delta { font-size: 12px; margin-top: 4px; }
+  .delta-up { color: #1D9E75; }
+  .delta-warn { color: #C8A060; }
+  .chart-card { background: #ffffff; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+  .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+  .chart-title { font-size: 14px; font-weight: 500; color: #1a1a1a; }
+  .chart-sub { font-size: 11px; color: #888; margin-top: 3px; }
+  .legend { display: flex; gap: 16px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #595959; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .signal-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+  .signal-converging { background: #EAF3DE; color: #3B6D11; }
+  .signal-gap { background: #FAECE7; color: #993C1D; }
+  .signal-warn { background: #FDF8EE; color: #7A5C20; }
+  .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .panel { background: #ffffff; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 12px; padding: 1.25rem; }
+  .panel-title { font-size: 13px; font-weight: 500; color: #1a1a1a; margin-bottom: 12px; }
+  .signal-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 0.5px solid rgba(0,0,0,0.08); }
+  .signal-row:last-child { border-bottom: none; }
+  .signal-label { font-size: 12px; color: #595959; }
+  .signal-bar-wrap { flex: 1; margin: 0 12px; height: 4px; background: #f1efe8; border-radius: 2px; }
+  .signal-bar { height: 4px; border-radius: 2px; }
+  .signal-val { font-size: 12px; font-weight: 500; color: #1a1a1a; min-width: 32px; text-align: right; }
+  .snapshot-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 0.5px solid rgba(0,0,0,0.08); }
+  .snapshot-row:last-child { border-bottom: none; }
+  .snap-label { font-size: 12px; color: #595959; flex: 1; }
+  .snap-value { font-size: 12px; font-weight: 500; color: #1D9E75; }
+  .snap-warn { font-size: 12px; font-weight: 500; color: #C8A060; }
+  .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .npai-stages { margin-top: 1rem; }
+  .stage-row { display: flex; align-items: center; gap: 12px; padding: 7px 0; border-bottom: 0.5px solid rgba(0,0,0,0.06); }
+  .stage-row:last-child { border-bottom: none; }
+  .stage-label { font-size: 12px; color: #595959; width: 160px; flex-shrink: 0; }
+  .stage-bar-wrap { flex: 1; height: 6px; background: #f1efe8; border-radius: 3px; }
+  .stage-bar { height: 6px; border-radius: 3px; }
+  .stage-score { font-size: 12px; font-weight: 600; min-width: 28px; text-align: right; }
+  .stage-status { font-size: 11px; min-width: 100px; text-align: right; }
+  .footer { margin-top: 1.5rem; font-size: 11px; color: #aaa; text-align: center; }
+</style>
+</head>
+<body>
+<div class="dash">
+
+  <div class="header">
+    <div>
+      <div class="brand"><span>Cipher</span> — CMO Dashboard</div>
+      <div class="date">Month 9 · Acme Security, Inc.</div>
+    </div>
+    <span class="signal-badge signal-converging">Converging</span>
+  </div>
+
+  <div class="illustrative-banner">
+    <strong>Illustrative.</strong> This is a sample dashboard showing what a client CMO uses to track narrative performance against pipeline health and present progress to their leadership team. All data is fictional.
+  </div>
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Composite NPAI score</div>
+      <div class="metric-value">7.2</div>
+      <div class="metric-delta delta-up">+2.8 from baseline (4.4)</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Pipeline health score</div>
+      <div class="metric-value">7.0</div>
+      <div class="metric-delta delta-up">+5.8 from baseline (1.2)</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Consideration conversion</div>
+      <div class="metric-value">61%</div>
+      <div class="metric-delta delta-up">Up from 30% at baseline</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Cipher signal</div>
+      <div class="metric-value">Aligned</div>
+      <div class="metric-delta delta-up">Lines converging · Month 9</div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Narrative performance vs pipeline health</div>
+        <div class="chart-sub">When the lines converge, the fixes are working.</div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#185FA5;"></div>Pipeline health</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#1D9E75;"></div>NPAI score</div>
+      </div>
+    </div>
+    <div style="position: relative; width: 100%; height: 220px;">
+      <canvas id="convergenceChart"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-title">NPAI by stage · Month 9</div>
+    </div>
+    <div class="npai-stages">
+      <div class="stage-row">
+        <div class="stage-label">Awareness (MQL)</div>
+        <div class="stage-bar-wrap"><div class="stage-bar" style="width:85%; background:#1D9E75;"></div></div>
+        <div class="stage-score" style="color:#1D9E75;">8.5</div>
+        <div class="stage-status" style="color:#3B6D11;">Strong</div>
+      </div>
+      <div class="stage-row">
+        <div class="stage-label">Consideration</div>
+        <div class="stage-bar-wrap"><div class="stage-bar" style="width:72%; background:#1D9E75;"></div></div>
+        <div class="stage-score" style="color:#1D9E75;">7.2</div>
+        <div class="stage-status" style="color:#3B6D11;">Strong</div>
+      </div>
+      <div class="stage-row">
+        <div class="stage-label">Evaluation (SQL-Opp)</div>
+        <div class="stage-bar-wrap"><div class="stage-bar" style="width:68%; background:#C8A060;"></div></div>
+        <div class="stage-score" style="color:#C8A060;">6.8</div>
+        <div class="stage-status" style="color:#7A5C20;">Moderate</div>
+      </div>
+      <div class="stage-row">
+        <div class="stage-label">Decision (Active Opp)</div>
+        <div class="stage-bar-wrap"><div class="stage-bar" style="width:71%; background:#1D9E75;"></div></div>
+        <div class="stage-score" style="color:#1D9E75;">7.1</div>
+        <div class="stage-status" style="color:#3B6D11;">Strong</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <div class="panel">
+      <div class="panel-title">Fixes completed · impact to date</div>
+      <div class="snapshot-row">
+        <div class="snap-label">Homepage hero rewrite</div>
+        <div class="snap-value">Consideration +31pts</div>
+      </div>
+      <div class="snapshot-row">
+        <div class="snap-label">Awareness-to-SQL nurture sequence</div>
+        <div class="snap-value">MQL-to-SQL +18%</div>
+      </div>
+      <div class="snapshot-row">
+        <div class="snap-label">Buying committee brief</div>
+        <div class="snap-value">Deal velocity +22%</div>
+      </div>
+      <div class="snapshot-row">
+        <div class="snap-label">Remaining fixes (3)</div>
+        <div class="snap-warn">In progress</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title" style="margin-bottom:0;">Board snapshot</div>
+      </div>
+      <div class="snapshot-row">
+        <div class="snap-label">NPAI at baseline</div>
+        <div class="snap-value">4.4 / 10</div>
+      </div>
+      <div class="snapshot-row">
+        <div class="snap-label">NPAI today</div>
+        <div class="snap-value">7.2 / 10</div>
+      </div>
+      <div class="snapshot-row">
+        <div class="snap-label">Pipeline gap identified</div>
+        <div class="snap-value">Consideration stage</div>
+      </div>
+      <div class="snapshot-row">
+        <div class="snap-label">Consideration conversion</div>
+        <div class="snap-value">30% → 61%</div>
+      </div>
+      <div class="snapshot-row">
+        <div class="snap-label">Cipher signal</div>
+        <span class="signal-badge signal-converging">Converging</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Cipher · liliankidston.com · LMKidston@gmail.com · All data illustrative · Acme Security, Inc.</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const months = ['Baseline','Month 3','Month 6','Month 9'];
+const pipeline = [1.2, 3.2, 5.2, 7.0];
+const narrative = [4.4, 5.8, 6.8, 7.2];
+
+new Chart(document.getElementById('convergenceChart').getContext('2d'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [
+      { label: 'Pipeline health', data: pipeline, borderColor: '#185FA5', backgroundColor: 'rgba(24,95,165,0.07)', fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#185FA5', borderWidth: 2 },
+      { label: 'NPAI score', data: narrative, borderColor: '#1D9E75', backgroundColor: 'rgba(29,158,117,0.07)', fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#1D9E75', borderWidth: 2 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 12 }, color: '#888' } },
+      y: { min: 0, max: 10, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 12 }, color: '#888', stepSize: 2 } }
+    }
+  }
+});
+</script>
+</body>
+</html>
