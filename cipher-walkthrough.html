@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cipher · How It Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream: #F7F4EE;
+  --cream-dk: #EDE9E0;
+  --dark: #141210;
+  --dark2: #1C1A17;
+  --gold: #B8903C;
+  --gold-lt: #C8A060;
+  --gold-dk: #8A6520;
+  --gold-pale: #F0E8D4;
+  --blue: #2D5A8F;
+  --blue-lt: #4A7AB5;
+  --text: #1a1810;
+  --sub: #595550;
+  --border: #E0D8CC;
+  --red: #993C1D;
+  --green: #1D6B48;
+  --amber: #9A6010;
+  --white: #FFFFFF;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--dark);
+  color: var(--text);
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 52px;
+  background: var(--dark);
+  border-bottom: 1px solid #2A2820;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  z-index: 100;
+}
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.topbar-bar {
+  width: 2.5px;
+  height: 18px;
+  background: var(--gold);
+  border-radius: 2px;
+}
+.topbar-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.topbar-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px;
+  color: #444;
+  letter-spacing: 0.08em;
+  margin-left: 4px;
+}
+
+/* ── PROGRESS ── */
+.progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.progress-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  opacity: 0.35;
+  transition: opacity 0.2s;
+}
+.progress-step.active { opacity: 1; }
+.progress-step.done { opacity: 0.6; }
+.progress-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #444;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.progress-step.active .progress-dot { background: var(--gold); }
+.progress-step.done .progress-dot { background: var(--green); }
+.progress-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: #888;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.progress-step.active .progress-label { color: var(--gold-lt); }
+.progress-step.done .progress-label { color: #666; }
+.progress-sep {
+  width: 20px;
+  height: 1px;
+  background: #2A2820;
+}
+
+/* ── MAIN STAGE ── */
+.stage {
+  position: fixed;
+  top: 52px; left: 0; right: 0; bottom: 64px;
+  overflow-y: auto;
+  background: var(--cream);
+}
+.phase { display: none; width: 100%; min-height: 100%; }
+.phase.active { display: flex; flex-direction: column; }
+.phase-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem;
+  flex: 1;
+}
+
+/* ── PHASE HEADER ── */
+.phase-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px;
+  color: var(--gold-dk);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.phase-title {
+  font-family: 'EB Garamond', serif;
+  font-size: 2.2rem;
+  color: var(--text);
+  font-weight: 400;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+.phase-desc {
+  font-size: 14px;
+  color: var(--sub);
+  line-height: 1.6;
+  max-width: 580px;
+  margin-bottom: 2rem;
+}
+.phase-rule {
+  width: 40px;
+  height: 1.5px;
+  background: var(--gold);
+  margin-bottom: 2rem;
+}
+
+/* ── BOTTOM NAV ── */
+.bottomnav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 64px;
+  background: var(--dark);
+  border-top: 1px solid #2A2820;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  z-index: 100;
+}
+.nav-counter {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: #444;
+  letter-spacing: 0.08em;
+}
+.nav-counter span { color: var(--gold-dk); }
+.nav-btns { display: flex; gap: 10px; }
+.btn-nav {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 22px;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+.btn-back {
+  background: #2A2820;
+  color: #888;
+}
+.btn-back:hover { background: #333; }
+.btn-back:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-next {
+  background: var(--gold);
+  color: var(--dark);
+}
+.btn-next:hover { background: var(--gold-lt); }
+.btn-cta {
+  background: var(--green);
+  color: white;
+}
+.btn-cta:hover { background: #268A5A; }
+.nav-phase-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px;
+  color: #444;
+  letter-spacing: 0.08em;
+}
+.nav-phase-label span { color: var(--gold-dk); }
+
+/* ── PHASE 1: INTAKE ── */
+.intake-banner {
+  background: var(--gold-pale);
+  border: 1px solid #D4B870;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: var(--gold-dk);
+  margin-bottom: 1.5rem;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.04em;
+}
+.intake-section {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+.intake-sec-hdr {
+  background: var(--dark);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.intake-sec-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--gold-dk);
+  letter-spacing: 0.1em;
+}
+.intake-sec-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--gold);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.intake-sec-body {
+  padding: 14px 16px;
+}
+.intake-q {
+  margin-bottom: 10px;
+}
+.intake-q:last-child { margin-bottom: 0; }
+.intake-q label {
+  display: block;
+  font-size: 11px;
+  color: var(--sub);
+  margin-bottom: 4px;
+}
+.intake-q .val {
+  font-size: 13px;
+  color: var(--text);
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+.intake-q-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* ── PHASE 2: DISCOVERY ── */
+.discovery-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 2rem;
+  margin-bottom: 1.25rem;
+}
+.discovery-card-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--gold-dk);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.discovery-card-title {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.25rem;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.discovery-card-body {
+  font-size: 13.5px;
+  color: var(--sub);
+  line-height: 1.6;
+}
+.discovery-cta {
+  display: inline-block;
+  margin-top: 1.5rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dark);
+  background: var(--gold);
+  border-radius: 4px;
+  padding: 11px 24px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.discovery-cta:hover { background: var(--gold-lt); }
+.discovery-questions {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1rem;
+}
+.discovery-q-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px;
+  color: var(--gold-dk);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.discovery-q-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.discovery-q-list li {
+  font-size: 13px;
+  color: var(--sub);
+  padding-left: 16px;
+  position: relative;
+  line-height: 1.45;
+}
+.discovery-q-list li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--gold-dk);
+  font-size: 11px;
+}
+
+/* ── PHASE 3: LILIAN'S NOTES ── */
+.notes-wrap {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.notes-hdr {
+  background: var(--dark2);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.notes-hdr-left {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.notes-hdr-right {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: #444;
+  letter-spacing: 0.06em;
+}
+.notes-body-wrap {
+  padding: 1.5rem 2rem;
+}
+.note-block {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.note-block:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.note-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--gold-dk);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.note-text {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.05rem;
+  color: var(--text);
+  line-height: 1.7;
+  font-style: italic;
+}
+.note-text strong {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--text);
+}
+.note-flags {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+.note-flag {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--sub);
+  line-height: 1.45;
+}
+.note-flag-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+.hypothesis-box {
+  background: var(--dark);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-top: 4px;
+}
+.hypothesis-text {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.05rem;
+  color: #ccc;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+/* ── PHASE 4: DIAGNOSTIC OUTPUT ── */
+.diag-composite {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2rem;
+  background: var(--dark);
+  border-radius: 10px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.25rem;
+  align-items: center;
+}
+.diag-composite-score { text-align: center; }
+.diag-big-num {
+  font-family: 'EB Garamond', serif;
+  font-size: 4.5rem;
+  font-weight: 400;
+  line-height: 1;
+  color: #C8A060;
+}
+.diag-big-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  color: var(--gold-dk);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+.diag-composite-meta { color: white; }
+.diag-status {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #C8A060;
+  margin-bottom: 6px;
+}
+.diag-interp {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.1rem;
+  color: #bbb;
+  font-style: italic;
+  line-height: 1.5;
+}
+.diag-stages {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 1.25rem;
+}
+.diag-stage {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+}
+.diag-stage-hdr {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.diag-stage-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px;
+  color: var(--sub);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.diag-stage-score {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+.diag-stage-status {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.diag-bar-bg {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-bottom: 8px;
+}
+.diag-bar-fill { height: 3px; border-radius: 2px; }
+.diag-stage-finding {
+  font-size: 12px;
+  color: var(--sub);
+  line-height: 1.4;
+}
+.c-critical { color: #993C1D; }
+.c-significant { color: #9A6010; }
+.c-moderate { color: #8A7020; }
+.c-strong { color: #1D6B48; }
+.bg-critical { background: #993C1D; }
+.bg-significant { background: #C8A060; }
+.bg-moderate { background: #C8A060; }
+.bg-strong { background: #1D6B48; }
+
+/* ── PHASE 5: FIX PLAN ── */
+.fix-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 10px;
+}
+.fix-card-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.fix-type {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: 1px solid currentColor;
+}
+.fix-badges { display: flex; gap: 8px; }
+.fix-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--sub);
+  letter-spacing: 0.06em;
+}
+.fix-name {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.1rem;
+  color: var(--text);
+  margin-bottom: 5px;
+}
+.fix-problem {
+  font-size: 13px;
+  color: var(--sub);
+  margin-bottom: 6px;
+  line-height: 1.45;
+}
+.fix-action {
+  font-size: 13px;
+  color: var(--text);
+  border-left: 2px solid var(--gold);
+  padding-left: 10px;
+  line-height: 1.45;
+}
+
+/* ── PHASE 6: DASHBOARD ── */
+.dashboard-frame {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.dashboard-frame-hdr {
+  background: var(--dark2);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.dashboard-frame-url {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: #444;
+  letter-spacing: 0.06em;
+}
+.dashboard-frame-lbl {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--gold-dk);
+  letter-spacing: 0.1em;
+}
+.dashboard-inner {
+  padding: 1.5rem;
+}
+.db-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 1.25rem;
+}
+.db-metric {
+  background: var(--cream);
+  border-radius: 6px;
+  padding: 0.9rem 1rem;
+}
+.db-metric-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px;
+  color: var(--sub);
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+.db-metric-value {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.6rem;
+  color: var(--text);
+  line-height: 1;
+}
+.db-metric-delta {
+  font-size: 11px;
+  color: var(--green);
+  margin-top: 3px;
+}
+.db-chart-area {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.db-chart-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px;
+  color: var(--sub);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.db-chart-note {
+  font-size: 11px;
+  color: var(--sub);
+  font-style: italic;
+  margin-top: 6px;
+}
+.db-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.db-panel {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+}
+.db-panel-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 9.5px;
+  color: var(--gold-dk);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.db-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.db-row:last-child { border-bottom: none; }
+.db-row-label { color: var(--sub); }
+.db-row-val { color: var(--green); font-weight: 500; }
+.db-row-warn { color: var(--amber); font-weight: 500; }
+
+/* ── ANIMATIONS ── */
+.phase.active .phase-inner {
+  animation: fadeUp 0.3s ease both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-bar"></div>
+    <div class="topbar-name">Cipher</div>
+    <div class="topbar-tag">· How It Works</div>
+  </div>
+  <div class="progress-wrap" id="progress"></div>
+</div>
+
+<!-- STAGE -->
+<div class="stage" id="stage">
+
+  <!-- ── PHASE 1: INTAKE ── -->
+  <div class="phase active" id="phase-1">
+    <div class="phase-inner">
+      <div class="phase-eyebrow">Phase 01 · The Client</div>
+      <h1 class="phase-title">The intake form.</h1>
+      <div class="phase-rule"></div>
+      <p class="phase-desc">Before the engagement begins, the CMO completes a structured intake brief. This is what the client submits — funnel data, pipeline sources, customer behavior, narrative footprint, sales signals, and their own read on where the problem is.</p>
+      <div class="intake-banner">Illustrative · Acme Security, Inc. · Series B · $12M ARR</div>
+
+      <div class="intake-section">
+        <div class="intake-sec-hdr">
+          <span class="intake-sec-num">01</span>
+          <span class="intake-sec-title">Funnel Shape</span>
+        </div>
+        <div class="intake-sec-body">
+          <div class="intake-q">
+            <label>Funnel stages and conversion rates</label>
+            <div class="val">Lead → MQL (38%), MQL → Consideration (30%), Consideration → SQL (51%), SQL → Active Opp (34%), Active Opp → Closed Won (35%)
+
+Monthly volume: MQL 1,600 / Consideration 480 / SQL 243 / Active Opp 82 / Closed Won 29</div>
+          </div>
+          <div class="intake-q-row">
+            <div class="intake-q">
+              <label>Average sales cycle</label>
+              <div class="val">87 days</div>
+            </div>
+            <div class="intake-q">
+              <label>Win rate</label>
+              <div class="val">24%</div>
+            </div>
+          </div>
+          <div class="intake-q">
+            <label>Where does the funnel drop most steeply?</label>
+            <div class="val">Consideration — 70% of MQL volume disappears there. Leads come in warm from our threat content and go cold fast. I can see it in the data every month but I can't explain it.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="intake-section">
+        <div class="intake-sec-hdr">
+          <span class="intake-sec-num">04</span>
+          <span class="intake-sec-title">Narrative Footprint</span>
+        </div>
+        <div class="intake-sec-body">
+          <div class="intake-q">
+            <label>Homepage headline</label>
+            <div class="val">Enterprise Security Platform for Modern Threats
+Comprehensive protection across your entire attack surface.</div>
+          </div>
+          <div class="intake-q">
+            <label>Primary value proposition</label>
+            <div class="val">Acme Security delivers unified threat detection, response, and compliance management for enterprise security teams. Our platform reduces breach risk and simplifies security operations.</div>
+          </div>
+          <div class="intake-q">
+            <label>Content tone</label>
+            <div class="val">Threat-focused and compliance-driven at top of funnel. Technical and product-heavy in mid-funnel and sales materials. The tone shifts significantly between marketing content and sales conversations.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="intake-section">
+        <div class="intake-sec-hdr">
+          <span class="intake-sec-num">07</span>
+          <span class="intake-sec-title">CMO's Own Read</span>
+        </div>
+        <div class="intake-sec-body">
+          <div class="intake-q">
+            <div class="val" style="font-family:'EB Garamond',serif;font-size:1rem;font-style:italic;color:var(--sub);">"I think the problem is we're generating plenty of awareness — our threat and compliance content gets strong engagement. But something breaks between that first click and the sales conversation. The SDRs tell me leads come in warm but go cold fast. My gut says our messaging resets at handoff. We lead with compliance urgency in marketing, then the sales deck opens with product architecture and feature lists. And even when sales gets a champion, the deals stall because the champion has nothing to take to the CFO. I've been saying we need a CFO-ready business case for two years. We still don't have one."</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PHASE 2: DISCOVERY CALL ── -->
+  <div class="phase" id="phase-2">
+    <div class="phase-inner">
+      <div class="phase-eyebrow">Phase 02 · Lilian Kidston</div>
+      <h1 class="phase-title">The discovery call.</h1>
+      <div class="phase-rule"></div>
+      <p class="phase-desc">Sixty minutes. Lilian uses the intake to build the call — these aren't generic questions. The call surfaces what the form can't capture: the gap between what the CMO believes is happening and what the pipeline data shows.</p>
+
+      <div class="discovery-card">
+        <div class="discovery-card-num">What this call is for</div>
+        <div class="discovery-card-title">The form tells me where the numbers break. The call tells me why.</div>
+        <div class="discovery-card-body">The intake data gives me the pipeline structure, the narrative footprint, and the CMO's own read on the problem. The discovery call is where I pressure-test the hypothesis, probe the gaps, and hear the language the CMO actually uses when they talk about the problem — not what they wrote in the form.</div>
+        <div class="discovery-questions">
+          <div class="discovery-q-title">Questions built from the Acme Security intake</div>
+          <ul class="discovery-q-list">
+            <li>Your Section 7 read names the handoff problem directly. How long have you known this? What have you tried to fix it?</li>
+            <li>Walk me through what happens between the DMARC content click and the first SDR call. What does the SDR say first?</li>
+            <li>Your win rate is 24% but 42% of contracts are signed by the CFO. What does your champion say to the CFO to justify the spend?</li>
+            <li>What does a lost deal look like in the last 30 days? What did the champion tell you after the deal died?</li>
+            <li>If you could fix one thing in the next 90 days — not everything, just one — what would it be?</li>
+          </ul>
+        </div>
+        <a href="mailto:letstalk@liliankidston.com?subject=Cipher Diagnostic Inquiry" class="discovery-cta">Schedule a call →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PHASE 3: LILIAN'S ASSESSMENT ── -->
+  <div class="phase" id="phase-3">
+    <div class="phase-inner">
+      <div class="phase-eyebrow">Phase 03 · Lilian Kidston</div>
+      <h1 class="phase-title">The assessment.</h1>
+      <div class="phase-rule"></div>
+      <p class="phase-desc">After the discovery call, Lilian documents her observations before the diagnostic runs. This is the interpretation layer — pattern recognition applied to what the intake and the call surfaced together.</p>
+
+      <div class="notes-wrap">
+        <div class="notes-hdr">
+          <div class="notes-hdr-left">Pre-diagnostic assessment · Acme Security, Inc.</div>
+          <div class="notes-hdr-right">Lilian Kidston · Internal</div>
+        </div>
+        <div class="notes-body-wrap">
+          <div class="note-block">
+            <div class="note-label">What the intake told me</div>
+            <div class="note-flags">
+              <div class="note-flag"><div class="note-flag-dot"></div><span>The 70% consideration drop is the headline number but it's not the whole story. The consideration stage is where the narrative resets — awareness runs on compliance urgency, the first sales conversation runs on product features. The buyer came in responding to one frame and gets pitched something different.</span></div>
+              <div class="note-flag"><div class="note-flag-dot"></div><span>Section 6 is the most important finding in the intake: 42% of contracts signed by CFO, but almost no mid-funnel content exists for that buyer. The champion is believed in the product but has no story to take upstairs. This is a textbook coalition gap.</span></div>
+              <div class="note-flag"><div class="note-flag-dot"></div><span>The DMARC campaign is the proof point hiding in the data. It's the one campaign where narrative and pipeline aligned — compliance urgency frame held from awareness all the way through. That's the template for what the full funnel should look like.</span></div>
+            </div>
+          </div>
+          <div class="note-block">
+            <div class="note-label">What the call confirmed</div>
+            <div class="note-text">The CMO named the pivot point problem herself in Section 7 — she knows the story resets at handoff, she just hasn't had the data to prove it or the mandate to fix it. The discovery call confirmed the SDR script opens with product categories, not threat language. The compliance content earns the click and the SDR script loses it. That's a one-sentence finding with a fixable solution.
+
+She also confirmed that champions are losing internal deals because they have no CFO-ready framing — no financial risk translation, no breach cost benchmarks, nothing that speaks the economic buyer's language. Deals aren't dying at the sales conversation. They're dying in the committee.</div>
+          </div>
+          <div class="note-block">
+            <div class="note-label">My hypothesis going in</div>
+            <div class="hypothesis-box">
+              <div class="hypothesis-text">Primary thread break: Pivot point at consideration. Awareness earns the click with compliance urgency; the sales handoff resets to product features. This is fixable with a homepage rewrite and a 4-email nurture sequence that holds the risk narrative from MQL to SQL.
+
+Secondary gap: Coalition gap at decision. Champion has no content for the CFO. A two-page buying committee brief with financial risk framing would close this.
+
+Composite NPAI likely in the 4.4–5.0 range. Consideration will score lowest. Decision second. Both addressable within 90 days.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PHASE 4: DIAGNOSTIC OUTPUT ── -->
+  <div class="phase" id="phase-4">
+    <div class="phase-inner">
+      <div class="phase-eyebrow">Phase 04 · The Output</div>
+      <h1 class="phase-title">The diagnostic.</h1>
+      <div class="phase-rule"></div>
+      <p class="phase-desc">The NPAI scores narrative performance at each funnel stage on a 0–10 scale across five inputs. The composite score tells the CMO where the story is actively costing them pipeline.</p>
+
+      <div class="diag-composite">
+        <div class="diag-composite-score">
+          <div class="diag-big-num">4.4</div>
+          <div class="diag-big-label">Score / 10</div>
+        </div>
+        <div class="diag-composite-meta">
+          <div class="diag-status">Significant Gap</div>
+          <div class="diag-interp">The narrative is actively breaking pipeline at two stages. Spend is generating awareness that the story can't convert. The gaps are real, specific, and fixable within 90 days.</div>
+        </div>
+      </div>
+
+      <div class="diag-stages">
+        <div class="diag-stage">
+          <div class="diag-stage-hdr">
+            <div class="diag-stage-name">Awareness (MQL)</div>
+            <div class="diag-stage-score c-moderate">6.5</div>
+          </div>
+          <div class="diag-stage-status c-moderate">Moderate</div>
+          <div class="diag-bar-bg"><div class="diag-bar-fill bg-moderate" style="width:65%"></div></div>
+          <div class="diag-stage-finding">Threat and compliance content is generating strong MQL volume. The top-of-funnel story is working. The problem starts at handoff.</div>
+        </div>
+        <div class="diag-stage">
+          <div class="diag-stage-hdr">
+            <div class="diag-stage-name">Consideration</div>
+            <div class="diag-stage-score c-critical">2.8</div>
+          </div>
+          <div class="diag-stage-status c-critical">Critical Gap</div>
+          <div class="diag-bar-bg"><div class="diag-bar-fill bg-critical" style="width:28%"></div></div>
+          <div class="diag-stage-finding">70% of pipeline disappears here. Awareness earns the click. The sales conversation loses it. The buyer experiences a full narrative reset at handoff.</div>
+        </div>
+        <div class="diag-stage">
+          <div class="diag-stage-hdr">
+            <div class="diag-stage-name">Evaluation (SQL-Opp)</div>
+            <div class="diag-stage-score c-significant">5.2</div>
+          </div>
+          <div class="diag-stage-status c-significant">Significant Gap</div>
+          <div class="diag-bar-bg"><div class="diag-bar-fill bg-significant" style="width:52%"></div></div>
+          <div class="diag-stage-finding">Buyers who make it through consideration are engaged but the commercial narrative diverges from the technical pitch. No content bridges the gap.</div>
+        </div>
+        <div class="diag-stage">
+          <div class="diag-stage-hdr">
+            <div class="diag-stage-name">Decision (Active Opp)</div>
+            <div class="diag-stage-score c-critical">3.6</div>
+          </div>
+          <div class="diag-stage-status c-critical">Critical Gap</div>
+          <div class="diag-bar-bg"><div class="diag-bar-fill bg-critical" style="width:36%"></div></div>
+          <div class="diag-stage-finding">Champions believe in the product but have no story for the CFO or board. Deals stall in committee and drag until they die.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PHASE 5: FIX PLAN ── -->
+  <div class="phase" id="phase-5">
+    <div class="phase-inner">
+      <div class="phase-eyebrow">Phase 05 · The Fix Plan</div>
+      <h1 class="phase-title">The instructions.</h1>
+      <div class="phase-rule"></div>
+      <p class="phase-desc">Each fix maps to a specific finding. Sequenced by impact and effort — highest impact, lowest effort first. Not a strategy deck. A diagnosis and a set of instructions.</p>
+
+      <div class="fix-card">
+        <div class="fix-card-hdr">
+          <span class="fix-type" style="color:#993C1D;border-color:#993C1D">REWRITE</span>
+          <div class="fix-badges">
+            <span class="fix-badge">Impact: High</span>
+            <span class="fix-badge">Effort: Low</span>
+            <span class="fix-badge" style="color:var(--gold-dk)">AWARENESS</span>
+          </div>
+        </div>
+        <div class="fix-name">Homepage Hero + Value Proposition</div>
+        <div class="fix-problem">Opens with product category. Wrong frame for a buyer responding to threat and compliance content.</div>
+        <div class="fix-action">Rewrite around the threat and the compliance exposure, not the platform. Awareness made a promise the homepage needs to keep.</div>
+      </div>
+
+      <div class="fix-card">
+        <div class="fix-card-hdr">
+          <span class="fix-type" style="color:var(--blue);border-color:var(--blue)">CREATE</span>
+          <div class="fix-badges">
+            <span class="fix-badge">Impact: High</span>
+            <span class="fix-badge">Effort: Medium</span>
+            <span class="fix-badge" style="color:var(--gold-dk)">CONSIDERATION</span>
+          </div>
+        </div>
+        <div class="fix-name">Awareness-to-SQL Nurture Sequence</div>
+        <div class="fix-problem">No content bridges awareness and the first sales conversation. The story resets at handoff because there is nothing holding the narrative across that gap.</div>
+        <div class="fix-action">4-email sequence holding the risk and compliance narrative from MQL to SQL. Advances the story the buyer already responded to — doesn't reset it.</div>
+      </div>
+
+      <div class="fix-card">
+        <div class="fix-card-hdr">
+          <span class="fix-type" style="color:var(--blue);border-color:var(--blue)">CREATE</span>
+          <div class="fix-badges">
+            <span class="fix-badge">Impact: High</span>
+            <span class="fix-badge">Effort: Medium</span>
+            <span class="fix-badge" style="color:var(--gold-dk)">DECISION</span>
+          </div>
+        </div>
+        <div class="fix-name">Buying Committee Brief</div>
+        <div class="fix-problem">The champion has no content for the buying committee. Deals stall internally, not at the sales conversation.</div>
+        <div class="fix-action">2-page brief with financial risk framing, regulatory exposure, and breach cost benchmarks. Gives the champion what they need to make the case to the CFO.</div>
+      </div>
+
+      <div style="background:var(--cream-dk);border-radius:6px;padding:10px 14px;font-size:12.5px;color:var(--sub);font-style:italic;margin-top:0.5rem;">
+        + 3 additional fixes included in the full report, covering SDR script realignment, win/loss narrative integration, and evaluation-stage content gaps.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PHASE 6: DASHBOARD ── -->
+  <div class="phase" id="phase-6">
+    <div class="phase-inner">
+      <div class="phase-eyebrow">Phase 06 · The CMO</div>
+      <h1 class="phase-title">The board metric.</h1>
+      <div class="phase-rule"></div>
+      <p class="phase-desc">After the fixes are executed, the CMO tracks narrative performance against pipeline health over time — and uses the Convergence Chart to present progress to their board. When the two lines converge, the diagnostic is working.</p>
+
+      <div class="dashboard-frame">
+        <div class="dashboard-frame-hdr">
+          <div class="dashboard-frame-url">liliankidston.com/cipher-dashboard</div>
+          <div class="dashboard-frame-lbl">Acme Security · Month 9</div>
+        </div>
+        <div class="dashboard-inner">
+          <div class="db-metrics">
+            <div class="db-metric">
+              <div class="db-metric-label">Composite NPAI</div>
+              <div class="db-metric-value">7.2</div>
+              <div class="db-metric-delta">+2.8 from baseline</div>
+            </div>
+            <div class="db-metric">
+              <div class="db-metric-label">Pipeline health</div>
+              <div class="db-metric-value">7.0</div>
+              <div class="db-metric-delta">+5.8 from baseline</div>
+            </div>
+            <div class="db-metric">
+              <div class="db-metric-label">Consideration rate</div>
+              <div class="db-metric-value">61%</div>
+              <div class="db-metric-delta">Up from 30%</div>
+            </div>
+            <div class="db-metric">
+              <div class="db-metric-label">Cipher signal</div>
+              <div class="db-metric-value" style="font-size:1.1rem;padding-top:4px;">Converging</div>
+              <div class="db-metric-delta">Month 9</div>
+            </div>
+          </div>
+
+          <div class="db-chart-area">
+            <div class="db-chart-title">NPAI score vs pipeline health · Baseline → Month 9</div>
+            <canvas id="db-chart" height="140"></canvas>
+            <div class="db-chart-note">When the lines converge, the fixes are working. This is the metric the CMO shows their board.</div>
+          </div>
+
+          <div class="db-bottom">
+            <div class="db-panel">
+              <div class="db-panel-title">Fixes · Impact to date</div>
+              <div class="db-row"><span class="db-row-label">Homepage hero rewrite</span><span class="db-row-val">Consideration +31pts</span></div>
+              <div class="db-row"><span class="db-row-label">Nurture sequence</span><span class="db-row-val">MQL-to-SQL +18%</span></div>
+              <div class="db-row"><span class="db-row-label">Buying committee brief</span><span class="db-row-val">Deal velocity +22%</span></div>
+              <div class="db-row"><span class="db-row-label">Remaining fixes (3)</span><span class="db-row-warn">In progress</span></div>
+            </div>
+            <div class="db-panel">
+              <div class="db-panel-title">Board snapshot</div>
+              <div class="db-row"><span class="db-row-label">NPAI at baseline</span><span class="db-row-val">4.4 / 10</span></div>
+              <div class="db-row"><span class="db-row-label">NPAI today</span><span class="db-row-val">7.2 / 10</span></div>
+              <div class="db-row"><span class="db-row-label">Gap identified</span><span class="db-row-val">Consideration</span></div>
+              <div class="db-row"><span class="db-row-label">Consideration rate</span><span class="db-row-val">30% → 61%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--dark);border-radius:8px;padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;margin-top:1.25rem;">
+        <div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold-dk);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">Ready to start?</div>
+          <div style="font-family:'EB Garamond',serif;font-size:1.1rem;color:white;line-height:1.5;">The engagement starts with a 60-minute call. You bring your pipeline data. Lilian brings the framework.</div>
+        </div>
+        <a href="mailto:letstalk@liliankidston.com?subject=Cipher Diagnostic Inquiry" style="flex-shrink:0;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--dark);background:var(--gold);border:none;border-radius:4px;padding:11px 24px;text-decoration:none;white-space:nowrap;">Get started →</a>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /stage -->
+
+<!-- BOTTOM NAV -->
+<div class="bottomnav">
+  <div>
+    <div class="nav-counter">Step <span id="nav-current">1</span> of 6</div>
+    <div class="nav-phase-label" id="nav-phase-label">The intake form</div>
+  </div>
+  <div class="nav-btns">
+    <button class="btn-nav btn-back" id="btn-back" onclick="navigate(-1)" disabled>← Back</button>
+    <button class="btn-nav btn-next" id="btn-next" onclick="navigate(1)">Next →</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const PHASES = [
+  { label: 'Intake form' },
+  { label: 'Discovery call' },
+  { label: 'Assessment' },
+  { label: 'Diagnostic' },
+  { label: 'Fix plan' },
+  { label: 'Dashboard' },
+];
+let current = 1;
+
+function buildProgress() {
+  const wrap = document.getElementById('progress');
+  wrap.innerHTML = '';
+  PHASES.forEach((p, i) => {
+    const n = i + 1;
+    if (i > 0) {
+      const sep = document.createElement('div');
+      sep.className = 'progress-sep';
+      wrap.appendChild(sep);
+    }
+    const step = document.createElement('div');
+    step.className = 'progress-step' + (n === current ? ' active' : n < current ? ' done' : '');
+    step.onclick = () => goTo(n);
+    step.innerHTML = `<div class="progress-dot"></div><div class="progress-label">${p.label}</div>`;
+    wrap.appendChild(step);
+  });
+}
+
+function goTo(n) {
+  document.getElementById('phase-' + current).classList.remove('active');
+  current = n;
+  document.getElementById('phase-' + current).classList.add('active');
+  document.getElementById('stage').scrollTop = 0;
+  document.getElementById('nav-current').textContent = current;
+  document.getElementById('nav-phase-label').textContent = PHASES[current - 1].label;
+  document.getElementById('btn-back').disabled = current === 1;
+  const nextBtn = document.getElementById('btn-next');
+  if (current === 6) {
+    nextBtn.textContent = 'Start over';
+    nextBtn.className = 'btn-nav btn-next';
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.className = 'btn-nav btn-next';
+  }
+  buildProgress();
+  if (current === 6) initChart();
+}
+
+function navigate(dir) {
+  if (dir === 1 && current === 6) { goTo(1); return; }
+  const next = current + dir;
+  if (next < 1 || next > 6) return;
+  goTo(next);
+}
+
+// Init chart on phase 6
+let chartInited = false;
+function initChart() {
+  if (chartInited) return;
+  chartInited = true;
+  new Chart(document.getElementById('db-chart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: ['Baseline', 'Month 3', 'Month 6', 'Month 9'],
+      datasets: [
+        { label: 'Pipeline health', data: [1.2, 3.2, 5.2, 7.0], borderColor: '#185FA5', backgroundColor: 'rgba(24,95,165,0.06)', fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#185FA5', borderWidth: 2 },
+        { label: 'NPAI score', data: [4.4, 5.8, 6.8, 7.2], borderColor: '#1D9E75', backgroundColor: 'rgba(29,158,117,0.06)', fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#1D9E75', borderWidth: 2 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 11 }, color: '#888', boxWidth: 10 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#888' } },
+        y: { min: 0, max: 10, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 11 }, color: '#888', stepSize: 2 } }
+      }
+    }
+  });
+}
+
+buildProgress();
+</script>
+</body>
+</html>
