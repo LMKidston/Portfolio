@@ -1393,7 +1393,7 @@ async function runDiagnostic() {
 
     clearInterval(stepInterval);
 
-    if (!response.ok) throw new Error(`API error: ${response.status}`);
+    if (!response.ok) response.text().then(t => { throw new Error('API error ' + response.status + ': ' + t) });
 
     const data = await response.json();
     const text = data.content.map(b => b.text || '').join('');
