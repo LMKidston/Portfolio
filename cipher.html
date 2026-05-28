@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cipher · Diagnostic Tool</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --cream: #F7F4EE;
+    --dark: #141210;
+    --gold: #B8903C;
+    --gold-lt: #C8A060;
+    --gold-dk: #8A6520;
+    --blue: #2D5A8F;
+    --text: #1a1810;
+    --sub: #595550;
+    --border: #E0D8CC;
+    --red: #993C1D;
+    --green: #1D6B48;
+    --amber: #9A6010;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--dark);
+    border-bottom: 1px solid #2a2820;
+    padding: 0 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .header-bar {
+    width: 3px;
+    height: 22px;
+    background: var(--gold);
+    border-radius: 2px;
+  }
+  .header-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .header-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #444;
+    letter-spacing: 0.08em;
+  }
+  .header-lock {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #444;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 3rem 2rem 5rem;
+  }
+
+  /* ── VIEWS ── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── INTAKE VIEW ── */
+  .intake-header {
+    margin-bottom: 2.5rem;
+  }
+  .intake-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--gold-dk);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .intake-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 2.4rem;
+    color: var(--text);
+    font-weight: 400;
+    line-height: 1.15;
+    margin-bottom: 10px;
+  }
+  .intake-desc {
+    font-size: 14px;
+    color: var(--sub);
+    line-height: 1.6;
+    max-width: 580px;
+  }
+  .rule {
+    width: 48px;
+    height: 1.5px;
+    background: var(--gold);
+    margin: 16px 0;
+  }
+
+  /* ── CLIENT INFO ROW ── */
+  .client-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 2rem;
+    padding: 1.25rem;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .field-group label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    color: var(--gold-dk);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .field-group input {
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 7px 10px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .field-group input:focus {
+    border-color: var(--gold-lt);
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    margin-bottom: 1.5rem;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: var(--dark);
+    cursor: pointer;
+    user-select: none;
+  }
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--gold-dk);
+    letter-spacing: 0.12em;
+  }
+  .section-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .section-desc {
+    font-size: 11px;
+    color: #555;
+    margin-top: 2px;
+  }
+  .section-toggle {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: #444;
+    transition: transform 0.2s;
+  }
+  .section.open .section-toggle { transform: rotate(45deg); }
+  .section-body {
+    display: none;
+    padding: 18px;
+  }
+  .section.open .section-body { display: block; }
+
+  .question {
+    margin-bottom: 14px;
+  }
+  .question:last-child { margin-bottom: 0; }
+  .question label {
+    display: block;
+    font-size: 12.5px;
+    color: var(--sub);
+    margin-bottom: 5px;
+    line-height: 1.4;
+  }
+  .question textarea, .question input[type=text] {
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 9px 11px;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.15s;
+    line-height: 1.5;
+  }
+  .question textarea:focus, .question input[type=text]:focus {
+    border-color: var(--gold-lt);
+  }
+  .q-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* ── RUN BUTTON ── */
+  .run-wrap {
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .btn-run {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dark);
+    background: var(--gold);
+    border: none;
+    border-radius: 4px;
+    padding: 12px 28px;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+  }
+  .btn-run:hover { background: var(--gold-lt); }
+  .btn-run:disabled { opacity: 0.4; cursor: not-allowed; }
+  .run-note {
+    font-size: 12px;
+    color: #888;
+    font-style: italic;
+  }
+
+  /* ── PROCESSING VIEW ── */
+  .processing {
+    text-align: center;
+    padding: 6rem 2rem;
+  }
+  .processing-icon {
+    width: 48px;
+    height: 48px;
+    border: 2px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 2rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .processing-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.6rem;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .processing-sub {
+    font-size: 13px;
+    color: var(--sub);
+  }
+  #processing-step {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--gold-dk);
+    margin-top: 16px;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── OUTPUT VIEW ── */
+  .output-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .output-client {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--gold-dk);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .output-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.8rem;
+    color: var(--text);
+  }
+  .btn-restart {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--sub);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 7px 14px;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .btn-restart:hover { border-color: var(--gold-lt); color: var(--gold-dk); }
+
+  /* composite score */
+  .composite-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    background: var(--dark);
+    border-radius: 10px;
+    padding: 1.5rem 2rem;
+    align-items: center;
+  }
+  .composite-score {
+    text-align: center;
+  }
+  .composite-num {
+    font-family: 'EB Garamond', serif;
+    font-size: 4.5rem;
+    font-weight: 400;
+    line-height: 1;
+  }
+  .composite-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .composite-meta {
+    color: white;
+  }
+  .composite-status {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .composite-interp {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.15rem;
+    color: #ccc;
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .composite-target {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #666;
+    margin-top: 8px;
+  }
+
+  /* stage scores */
+  .stages-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+  .stage-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.1rem 1.25rem;
+  }
+  .stage-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .stage-card-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--sub);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .stage-card-score {
+    font-family: 'EB Garamond', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    line-height: 1;
+  }
+  .stage-card-status {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .stage-bar-bg {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 10px;
+  }
+  .stage-bar-fill {
+    height: 3px;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+  .stage-finding {
+    font-size: 12.5px;
+    color: var(--sub);
+    line-height: 1.45;
+  }
+
+  /* inputs breakdown */
+  .inputs-section {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .inputs-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--gold-dk);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .input-row:last-child { border-bottom: none; }
+  .input-name {
+    font-size: 12.5px;
+    color: var(--text);
+    width: 200px;
+    flex-shrink: 0;
+  }
+  .input-weight {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #aaa;
+    width: 36px;
+    flex-shrink: 0;
+  }
+  .input-bar-bg {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+  }
+  .input-bar-fill {
+    height: 4px;
+    border-radius: 2px;
+  }
+  .input-score {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    width: 28px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .input-note {
+    font-size: 11px;
+    color: var(--sub);
+    width: 180px;
+    flex-shrink: 0;
+    font-style: italic;
+  }
+
+  /* thread breaks */
+  .findings-section {
+    margin-bottom: 2rem;
+  }
+  .findings-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--gold-dk);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .finding-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    border-radius: 0 8px 8px 0;
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 10px;
+  }
+  .finding-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    color: var(--red);
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+  .finding-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.15rem;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .finding-desc {
+    font-size: 13px;
+    color: var(--sub);
+    line-height: 1.5;
+  }
+  .finding-thread {
+    margin-top: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    color: var(--gold-dk);
+    letter-spacing: 0.08em;
+  }
+
+  /* fix plan */
+  .fix-section {
+    margin-bottom: 2rem;
+  }
+  .fix-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--gold-dk);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .fix-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 10px;
+  }
+  .fix-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .fix-action-type {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 3px;
+    border: 1px solid currentColor;
+  }
+  .fix-impact-wrap {
+    display: flex;
+    gap: 8px;
+  }
+  .fix-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    color: var(--sub);
+  }
+  .fix-name {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--text);
+    margin-bottom: 5px;
+  }
+  .fix-problem {
+    font-size: 12.5px;
+    color: var(--sub);
+    line-height: 1.45;
+    margin-bottom: 6px;
+  }
+  .fix-action {
+    font-size: 12.5px;
+    color: var(--text);
+    line-height: 1.45;
+    border-left: 2px solid var(--gold);
+    padding-left: 10px;
+  }
+
+  /* 90-day target */
+  .target-section {
+    background: var(--dark);
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    align-items: center;
+  }
+  .target-score {
+    text-align: center;
+  }
+  .target-num {
+    font-family: 'EB Garamond', serif;
+    font-size: 3rem;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .target-lbl {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    color: var(--gold-dk);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .target-body {
+    color: #ccc;
+  }
+  .target-heading {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--gold-dk);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .target-rationale {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.1rem;
+    color: #bbb;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* notes */
+  .notes-section {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .notes-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--gold-dk);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .notes-body {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.05rem;
+    color: var(--sub);
+    line-height: 1.65;
+    font-style: italic;
+  }
+
+  /* score color helpers */
+  .c-critical { color: var(--red); }
+  .c-significant { color: var(--amber); }
+  .c-moderate { color: #8A7020; }
+  .c-strong { color: var(--green); }
+  .bg-critical { background: var(--red); }
+  .bg-significant { background: var(--amber); }
+  .bg-moderate { background: #C8A060; }
+  .bg-strong { background: var(--green); }
+
+  /* error */
+  .error-box {
+    background: #FDF0ED;
+    border: 1px solid #E8C0B0;
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    font-size: 13px;
+    color: var(--red);
+    margin-top: 1rem;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-brand">
+    <div class="header-bar"></div>
+    <div>
+      <div class="header-name">Cipher</div>
+      <div class="header-sub">Diagnostic Tool · Private</div>
+    </div>
+  </div>
+  <div class="header-lock">Lilian Kidston · Internal use only</div>
+</div>
+
+<!-- ── INTAKE VIEW ── -->
+<div id="view-intake" class="view active">
+<div class="container">
+
+  <div class="intake-header">
+    <div class="intake-eyebrow">New Diagnostic</div>
+    <h1 class="intake-title">Client Intake Input</h1>
+    <div class="rule"></div>
+    <p class="intake-desc">Paste the client's completed intake responses below. Work through each section. The more complete the input, the more precise the diagnostic output.</p>
+  </div>
+
+  <!-- Client info -->
+  <div class="client-row">
+    <div class="field-group">
+      <label>Company name</label>
+      <input type="text" id="client-name" placeholder="Acme Security, Inc.">
+    </div>
+    <div class="field-group">
+      <label>Current ARR</label>
+      <input type="text" id="client-arr" placeholder="e.g. $8M">
+    </div>
+    <div class="field-group">
+      <label>Company stage</label>
+      <input type="text" id="client-stage" placeholder="Series B">
+    </div>
+  </div>
+
+  <!-- Section 01 -->
+  <div class="section open" id="sec-01">
+    <div class="section-header" onclick="toggleSection('sec-01')">
+      <div class="section-label">
+        <span class="section-num">01</span>
+        <div>
+          <div class="section-title">Funnel Shape</div>
+          <div class="section-desc">Stage conversion rates, win rate, cycle length</div>
+        </div>
+      </div>
+      <span class="section-toggle">+</span>
+    </div>
+    <div class="section-body">
+      <div class="question">
+        <label>Funnel stages and conversion rates between each stage</label>
+        <textarea id="q01a" rows="3" placeholder="e.g. Lead → MQL (42%), MQL → SQL (28%), SQL → Opportunity (61%), Opportunity → Closed Won (24%)"></textarea>
+      </div>
+      <div class="q-row">
+        <div class="question">
+          <label>Average sales cycle (days)</label>
+          <input type="text" id="q01b" placeholder="e.g. 67 days">
+        </div>
+        <div class="question">
+          <label>Overall win rate</label>
+          <input type="text" id="q01c" placeholder="e.g. 24%">
+        </div>
+      </div>
+      <div class="question">
+        <label>Where does the funnel drop most steeply? (their read)</label>
+        <textarea id="q01d" rows="2" placeholder="The client's own interpretation of where the biggest fall-off is"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 02 -->
+  <div class="section" id="sec-02">
+    <div class="section-header" onclick="toggleSection('sec-02')">
+      <div class="section-label">
+        <span class="section-num">02</span>
+        <div>
+          <div class="section-title">Pipeline Sources</div>
+          <div class="section-desc">Channels, campaigns, spend concentration</div>
+        </div>
+      </div>
+      <span class="section-toggle">+</span>
+    </div>
+    <div class="section-body">
+      <div class="question">
+        <label>Top 3 pipeline sources by volume</label>
+        <textarea id="q02a" rows="2" placeholder="e.g. paid search, outbound SDR, content syndication"></textarea>
+      </div>
+      <div class="question">
+        <label>Campaigns with best lead-to-opportunity conversion (last 2 quarters)</label>
+        <textarea id="q02b" rows="2" placeholder="Specific campaign names or themes, not just channels"></textarea>
+      </div>
+      <div class="q-row">
+        <div class="question">
+          <label>Where is spend most concentrated?</label>
+          <input type="text" id="q02c" placeholder="">
+        </div>
+        <div class="question">
+          <label>Where do they wish it was?</label>
+          <input type="text" id="q02d" placeholder="">
+        </div>
+      </div>
+      <div class="question">
+        <label>What has stopped working or underperformed?</label>
+        <textarea id="q02e" rows="2"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 03 -->
+  <div class="section" id="sec-03">
+    <div class="section-header" onclick="toggleSection('sec-03')">
+      <div class="section-label">
+        <span class="section-num">03</span>
+        <div>
+          <div class="section-title">Customer Behavior</div>
+          <div class="section-desc">Retention, churn, expansion patterns</div>
+        </div>
+      </div>
+      <span class="section-toggle">+</span>
+    </div>
+    <div class="section-body">
+      <div class="q-row">
+        <div class="question">
+          <label>Annual churn rate</label>
+          <input type="text" id="q03a" placeholder="">
+        </div>
+        <div class="question">
+          <label>Net revenue retention</label>
+          <input type="text" id="q03b" placeholder="">
+        </div>
+      </div>
+      <div class="question">
+        <label>Which segment retains best? What do they have in common?</label>
+        <textarea id="q03c" rows="2"></textarea>
+      </div>
+      <div class="question">
+        <label>Which segment churns fastest? What do they have in common?</label>
+        <textarea id="q03d" rows="2"></textarea>
+      </div>
+      <div class="question">
+        <label>What do customers say when they expand? When they churn?</label>
+        <textarea id="q03e" rows="2" placeholder="Verbatim if available"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 04 -->
+  <div class="section" id="sec-04">
+    <div class="section-header" onclick="toggleSection('sec-04')">
+      <div class="section-label">
+        <span class="section-num">04</span>
+        <div>
+          <div class="section-title">Narrative Footprint</div>
+          <div class="section-desc">Homepage, value prop, content, tone</div>
+        </div>
+      </div>
+      <span class="section-toggle">+</span>
+    </div>
+    <div class="section-body">
+      <div class="question">
+        <label>Current homepage headline and sub-headline</label>
+        <textarea id="q04a" rows="2" placeholder="Paste exactly as it appears on the site"></textarea>
+      </div>
+      <div class="question">
+        <label>Primary value proposition from sales deck or pitch</label>
+        <textarea id="q04b" rows="2"></textarea>
+      </div>
+      <div class="question">
+        <label>Top 5 performing content pieces by engagement (last 6 months)</label>
+        <textarea id="q04c" rows="3" placeholder="Title, format, rough engagement numbers"></textarea>
+      </div>
+      <div class="question">
+        <label>Overall tone of external content</label>
+        <input type="text" id="q04d" placeholder="e.g. technical, educational, thought leadership, product-led">
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 05 -->
+  <div class="section" id="sec-05">
+    <div class="section-header" onclick="toggleSection('sec-05')">
+      <div class="section-label">
+        <span class="section-num">05</span>
+        <div>
+          <div class="section-title">Sales Signal</div>
+          <div class="section-desc">Objections, lost deals, competitor positioning</div>
+        </div>
+      </div>
+      <span class="section-toggle">+</span>
+    </div>
+    <div class="section-body">
+      <div class="question">
+        <label>Most common late-stage objections</label>
+        <textarea id="q05a" rows="2" placeholder="The ones that stall or kill deals after the buyer is already engaged"></textarea>
+      </div>
+      <div class="question">
+        <label>Most common reasons for lost deals</label>
+        <textarea id="q05b" rows="2" placeholder="Price, timing, competitor, no decision — and what the buyer said specifically"></textarea>
+      </div>
+      <div class="question">
+        <label>Who do they lose to most? What does that competitor say about them?</label>
+        <textarea id="q05c" rows="2"></textarea>
+      </div>
+      <div class="question">
+        <label>What do best customers say when giving a reference?</label>
+        <textarea id="q05d" rows="2" placeholder="Verbatim if possible"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 06 -->
+  <div class="section" id="sec-06">
+    <div class="section-header" onclick="toggleSection('sec-06')">
+      <div class="section-label">
+        <span class="section-num">06</span>
+        <div>
+          <div class="section-title">ICP Definition</div>
+          <div class="section-desc">Who they think they're selling to vs. who is actually buying</div>
+        </div>
+      </div>
+      <span class="section-toggle">+</span>
+    </div>
+    <div class="section-body">
+      <div class="question">
+        <label>Current ICP definition as documented</label>
+        <textarea id="q06a" rows="3" placeholder="Job title, company size, industry, buying trigger, pain point"></textarea>
+      </div>
+      <div class="q-row">
+        <div class="question">
+          <label>Titles signing contracts most often</label>
+          <input type="text" id="q06b" placeholder="Closed won, last 4 quarters">
+        </div>
+        <div class="question">
+          <label>Titles most often the champion</label>
+          <input type="text" id="q06c" placeholder="">
+        </div>
+      </div>
+      <div class="question">
+        <label>Does closed won data match the stated ICP? Where does it diverge?</label>
+        <textarea id="q06d" rows="2"></textarea>
+      </div>
+      <div class="question">
+        <label>Is messaging built for the economic buyer or the champion?</label>
+        <textarea id="q06e" rows="2"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 07 -->
+  <div class="section" id="sec-07">
+    <div class="section-header" onclick="toggleSection('sec-07')">
+      <div class="section-label">
+        <span class="section-num">07</span>
+        <div>
+          <div class="section-title">CMO's Own Read</div>
+          <div class="section-desc">One paragraph. Their gut, not the data.</div>
+        </div>
+      </div>
+      <span class="section-toggle">+</span>
+    </div>
+    <div class="section-body">
+      <div class="question">
+        <label>Where do they think the narrative and pipeline are out of sync?</label>
+        <textarea id="q07a" rows="4" placeholder="Paste their paragraph here verbatim. This is a data point."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="run-wrap">
+    <button class="btn-run" id="btn-run" onclick="runDiagnostic()">Run Diagnostic</button>
+    <span class="run-note">Processes all sections · 30–60 seconds</span>
+  </div>
+  <div class="error-box" id="error-box"></div>
+
+</div>
+</div>
+
+<!-- ── PROCESSING VIEW ── -->
+<div id="view-processing" class="view">
+  <div class="container">
+    <div class="processing">
+      <div class="processing-icon"></div>
+      <div class="processing-title">Running the diagnostic.</div>
+      <div class="processing-sub">Scoring NPAI across four funnel stages.</div>
+      <div id="processing-step">Initializing...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── OUTPUT VIEW ── -->
+<div id="view-output" class="view">
+  <div class="container">
+
+    <div class="output-header">
+      <div>
+        <div class="output-client" id="out-client-label">—</div>
+        <div class="output-title">Narrative Pipeline Alignment Index</div>
+      </div>
+      <button class="btn-restart" onclick="restart()">← New diagnostic</button>
+    </div>
+
+    <!-- composite -->
+    <div class="composite-row" id="out-composite"></div>
+
+    <!-- stages -->
+    <div class="stages-grid" id="out-stages"></div>
+
+    <!-- input scores -->
+    <div class="inputs-section">
+      <div class="inputs-title">Five inputs · averaged across stages</div>
+      <div id="out-inputs"></div>
+    </div>
+
+    <!-- findings -->
+    <div class="findings-section">
+      <div class="findings-title">Diagnostic Findings</div>
+      <div id="out-findings"></div>
+    </div>
+
+    <!-- fix plan -->
+    <div class="fix-section">
+      <div class="fix-title">Fix Plan · Sequenced by impact</div>
+      <div id="out-fixes"></div>
+    </div>
+
+    <!-- 90-day target -->
+    <div class="target-section" id="out-target"></div>
+
+    <!-- interpretation notes -->
+    <div class="notes-section">
+      <div class="notes-title">Lilian's interpretation notes</div>
+      <div class="notes-body" id="out-notes"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── SECTION TOGGLE ────────────────────────────────────────────────────────
+function toggleSection(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+// ── VIEW SWITCHER ─────────────────────────────────────────────────────────
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function restart() {
+  showView('view-intake');
+}
+
+// ── SCORE HELPERS ─────────────────────────────────────────────────────────
+function scoreColor(n) {
+  if (n >= 7) return 'strong';
+  if (n >= 5.5) return 'moderate';
+  if (n >= 4) return 'significant';
+  return 'critical';
+}
+function scoreLabel(n) {
+  if (n >= 7) return 'Strong';
+  if (n >= 5.5) return 'Moderate';
+  if (n >= 4) return 'Significant Gap';
+  return 'Critical Gap';
+}
+function compositeColor(n) {
+  if (n >= 7) return '#1D9E75';
+  if (n >= 5.5) return '#C8A060';
+  if (n >= 4) return '#C8A060';
+  return '#E05A3A';
+}
+
+// ── BUILD OUTPUT DOM ──────────────────────────────────────────────────────
+function renderOutput(data, clientName) {
+  // header
+  document.getElementById('out-client-label').textContent =
+    (clientName || 'Client') + '  ·  Illustrative';
+
+  // composite
+  const c = data.composite;
+  const cCol = compositeColor(c.score);
+  document.getElementById('out-composite').innerHTML = `
+    <div class="composite-score">
+      <div class="composite-num" style="color:${cCol}">${c.score.toFixed(1)}</div>
+      <div class="composite-label" style="color:${cCol}">Score / 10</div>
+    </div>
+    <div class="composite-meta">
+      <div class="composite-status" style="color:${cCol}">${scoreLabel(c.score)}</div>
+      <div class="composite-interp">${c.interpretation}</div>
+      <div class="composite-target">Suggested 90-day target: ${c.target_score} · ${c.target_rationale}</div>
+    </div>`;
+
+  // stages
+  const stageNames = ['Awareness (MQL)','Consideration','Evaluation (SQL-Opp)','Decision (Active Opp)'];
+  const stagesEl = document.getElementById('out-stages');
+  stagesEl.innerHTML = '';
+  data.stages.forEach((s, i) => {
+    const col = scoreColor(s.score);
+    const div = document.createElement('div');
+    div.className = 'stage-card';
+    div.innerHTML = `
+      <div class="stage-card-header">
+        <div class="stage-card-name">${stageNames[i]}</div>
+        <div class="stage-card-score c-${col}">${s.score.toFixed(1)}</div>
+      </div>
+      <div class="stage-card-status c-${col}">${scoreLabel(s.score)}</div>
+      <div class="stage-bar-bg"><div class="stage-bar-fill bg-${col}" style="width:${s.score*10}%"></div></div>
+      <div class="stage-finding">${s.finding}</div>`;
+    stagesEl.appendChild(div);
+  });
+
+  // inputs
+  const inputNames = [
+    {n:'Stage coverage', w:'20%'},
+    {n:'ICP resonance', w:'30%'},
+    {n:'Narrative continuity', w:'20%'},
+    {n:'Conversion signal alignment', w:'20%'},
+    {n:'Win/loss alignment', w:'10%'}
+  ];
+  const inputsEl = document.getElementById('out-inputs');
+  inputsEl.innerHTML = '';
+  data.inputs.forEach((inp, i) => {
+    const col = scoreColor(inp.score);
+    const row = document.createElement('div');
+    row.className = 'input-row';
+    row.innerHTML = `
+      <div class="input-name">${inputNames[i].n}</div>
+      <div class="input-weight">${inputNames[i].w}</div>
+      <div class="input-bar-bg"><div class="input-bar-fill bg-${col}" style="width:${inp.score*10}%"></div></div>
+      <div class="input-score c-${col}">${inp.score.toFixed(1)}</div>
+      <div class="input-note">${inp.note}</div>`;
+    inputsEl.appendChild(row);
+  });
+
+  // findings
+  const findingsEl = document.getElementById('out-findings');
+  findingsEl.innerHTML = '';
+  data.findings.forEach((f, i) => {
+    const div = document.createElement('div');
+    div.className = 'finding-card';
+    div.innerHTML = `
+      <div class="finding-num">FINDING ${String(i+1).padStart(2,'0')}</div>
+      <div class="finding-title">${f.title}</div>
+      <div class="finding-desc">${f.description}</div>
+      <div class="finding-thread">Thread break: ${f.thread_break}</div>`;
+    findingsEl.appendChild(div);
+  });
+
+  // fixes
+  const fixesEl = document.getElementById('out-fixes');
+  fixesEl.innerHTML = '';
+  data.fixes.forEach((fx, i) => {
+    const typeColor = fx.action_type === 'REWRITE' ? 'var(--red)' :
+                      fx.action_type === 'CREATE' ? 'var(--blue)' : 'var(--amber)';
+    const div = document.createElement('div');
+    div.className = 'fix-card';
+    div.innerHTML = `
+      <div class="fix-card-header">
+        <span class="fix-action-type" style="color:${typeColor};border-color:${typeColor}">${fx.action_type}</span>
+        <div class="fix-impact-wrap">
+          <span class="fix-badge">Impact: ${fx.impact}</span>
+          <span class="fix-badge">Effort: ${fx.effort}</span>
+          <span class="fix-badge" style="color:var(--gold-dk)">${fx.stage}</span>
+        </div>
+      </div>
+      <div class="fix-name">${fx.name}</div>
+      <div class="fix-problem">${fx.problem}</div>
+      <div class="fix-action">${fx.action}</div>`;
+    fixesEl.appendChild(div);
+  });
+
+  // target
+  document.getElementById('out-target').innerHTML = `
+    <div class="target-score">
+      <div class="target-num">${data.composite.target_score}</div>
+      <div class="target-lbl">90-day target</div>
+    </div>
+    <div class="target-body">
+      <div class="target-heading">Setting the 90-day target</div>
+      <div class="target-rationale">${data.composite.target_rationale_long || data.composite.target_rationale}</div>
+    </div>`;
+
+  // notes
+  document.getElementById('out-notes').textContent = data.interpretation_notes;
+}
+
+// ── COLLECT INTAKE DATA ───────────────────────────────────────────────────
+function collectIntake() {
+  const g = id => (document.getElementById(id) || {}).value || '';
+  return {
+    client: {
+      name: g('client-name'),
+      arr: g('client-arr'),
+      stage: g('client-stage')
+    },
+    funnel: {
+      stages_and_rates: g('q01a'),
+      sales_cycle: g('q01b'),
+      win_rate: g('q01c'),
+      drop_off_read: g('q01d')
+    },
+    pipeline_sources: {
+      top_sources: g('q02a'),
+      best_campaigns: g('q02b'),
+      spend_now: g('q02c'),
+      spend_wish: g('q02d'),
+      what_stopped_working: g('q02e')
+    },
+    customer_behavior: {
+      churn_rate: g('q03a'),
+      nrr: g('q03b'),
+      best_retention_segment: g('q03c'),
+      fastest_churn_segment: g('q03d'),
+      expand_churn_language: g('q03e')
+    },
+    narrative_footprint: {
+      homepage_headline: g('q04a'),
+      value_proposition: g('q04b'),
+      top_content: g('q04c'),
+      content_tone: g('q04d')
+    },
+    sales_signal: {
+      late_stage_objections: g('q05a'),
+      lost_deal_reasons: g('q05b'),
+      competitor_positioning: g('q05c'),
+      reference_language: g('q05d')
+    },
+    icp: {
+      icp_definition: g('q06a'),
+      signing_titles: g('q06b'),
+      champion_titles: g('q06c'),
+      icp_vs_closed_won: g('q06d'),
+      economic_buyer_messaging: g('q06e')
+    },
+    cmo_read: g('q07a')
+  };
+}
+
+// ── PROMPT BUILDER ────────────────────────────────────────────────────────
+function buildPrompt(intake) {
+  return `You are Cipher, a narrative diagnostic tool built by Lilian Kidston. Your job is to analyze this client intake and produce a complete NPAI diagnostic output as a JSON object.
+
+NPAI SCORING FRAMEWORK:
+Score each of five inputs (0-10) per funnel stage, then weight them:
+- Stage coverage: 20% — does content exist for this stage and is it substantive
+- ICP resonance: 30% — does language match how the actual buyer talks about their problem (highest weight — product language scores low, buyer language scores high)
+- Narrative continuity: 20% — does the story connect from stage to stage without breaks
+- Conversion signal alignment: 20% — does pipeline drop-off correlate with weak narrative at that stage
+- Win/loss alignment: 10% — does buyer language from lost deals appear in the narrative (if missing, score 5 neutral)
+
+Stage composite weights for overall NPAI:
+- Awareness: 20%
+- Consideration: 30%
+- Evaluation: 30%
+- Decision: 20%
+
+Score ranges: 0-3.9 Critical Gap, 4-5.4 Significant Gap, 5.5-6.9 Moderate, 7-10 Strong
+
+Thread break patterns:
+- Inside voice (awareness): narrative assumes familiarity, uses internal language, doesn't speak the buyer's urgency
+- Pivot point (consideration/evaluation): narrative shifts from buyer problem to seller agenda at the handoff
+- Coalition gap (decision): story built for champion, no content for CFO/board/buying committee
+
+CLIENT INTAKE:
+${JSON.stringify(intake, null, 2)}
+
+Produce a JSON object with this exact structure:
+{
+  "composite": {
+    "score": <number 0-10, one decimal>,
+    "interpretation": <2-3 sentences explaining what this composite score means for this specific client's pipeline situation>,
+    "target_score": <number — realistic 90-day target>,
+    "target_rationale": <one short sentence>,
+    "target_rationale_long": <2-3 sentences on how to reach the target>
+  },
+  "stages": [
+    {
+      "score": <number>,
+      "finding": <2 sentences: what is strong or breaking at this stage for this client>
+    },
+    ... (4 stages: Awareness, Consideration, Evaluation, Decision)
+  ],
+  "inputs": [
+    {
+      "score": <average across stages, one decimal>,
+      "note": <8-12 word note on what drove this score>
+    },
+    ... (5 inputs: stage_coverage, icp_resonance, narrative_continuity, conversion_signal_alignment, win_loss_alignment)
+  ],
+  "findings": [
+    {
+      "title": <short finding title like "Narrative breaks at Consideration">,
+      "description": <2-3 sentences specific to this client's data>,
+      "thread_break": <"Inside voice" | "Pivot point" | "Coalition gap">
+    },
+    ... (2-4 findings, ranked by severity)
+  ],
+  "fixes": [
+    {
+      "action_type": <"REWRITE" | "CREATE" | "AUDIT">,
+      "name": <specific deliverable name>,
+      "problem": <one sentence: the specific break this fixes>,
+      "action": <one sentence: exactly what to do>,
+      "stage": <"AWARENESS" | "CONSIDERATION" | "EVALUATION" | "DECISION">,
+      "impact": <"High" | "Medium" | "Low">,
+      "effort": <"Low" | "Medium" | "High">
+    },
+    ... (3-5 fixes, sequenced by impact/effort — high impact low effort first)
+  ],
+  "interpretation_notes": <3-5 sentences in Lilian's voice: what she should pay attention to in the discovery call, what surprised her in the data, what the CMO's own read says about their self-awareness. Write as if speaking to herself before the discovery call.>
+}
+
+IMPORTANT: Be specific to this client's actual data. Do not produce generic findings. If data is thin in a section, say so in the finding. Score conservatively — most first diagnostics land 4-6. Return ONLY the JSON object, no markdown, no preamble.`;
+}
+
+// ── RUN DIAGNOSTIC ────────────────────────────────────────────────────────
+async function runDiagnostic() {
+  const intake = collectIntake();
+
+  // basic validation
+  const hasContent = intake.funnel.stages_and_rates ||
+    intake.narrative_footprint.homepage_headline ||
+    intake.sales_signal.late_stage_objections ||
+    intake.cmo_read;
+
+  if (!hasContent) {
+    const err = document.getElementById('error-box');
+    err.style.display = 'block';
+    err.textContent = 'Please complete at least sections 01 (Funnel Shape), 04 (Narrative Footprint), and 07 (CMO Read) before running the diagnostic.';
+    return;
+  }
+
+  document.getElementById('error-box').style.display = 'none';
+  document.getElementById('btn-run').disabled = true;
+  showView('view-processing');
+
+  const steps = [
+    'Processing funnel shape data...',
+    'Scoring narrative footprint...',
+    'Mapping ICP resonance...',
+    'Identifying thread break patterns...',
+    'Calculating stage NPAI scores...',
+    'Building fix plan...',
+    'Generating diagnostic output...'
+  ];
+  let stepIdx = 0;
+  const stepEl = document.getElementById('processing-step');
+  const stepInterval = setInterval(() => {
+    if (stepIdx < steps.length) {
+      stepEl.textContent = steps[stepIdx++];
+    }
+  }, 1800);
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        messages: [{ role: 'user', content: buildPrompt(intake) }]
+      })
+    });
+
+    clearInterval(stepInterval);
+
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+
+    const data = await response.json();
+    const text = data.content.map(b => b.text || '').join('');
+
+    // strip any markdown fences
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    renderOutput(parsed, intake.client.name);
+    document.getElementById('btn-run').disabled = false;
+    showView('view-output');
+
+  } catch (err) {
+    clearInterval(stepInterval);
+    document.getElementById('btn-run').disabled = false;
+    showView('view-intake');
+    const errBox = document.getElementById('error-box');
+    errBox.style.display = 'block';
+    errBox.textContent = 'Diagnostic failed: ' + err.message + '. Check that intake data is complete and try again.';
+  }
+}
+</script>
+</body>
+</html>
