@@ -1396,6 +1396,8 @@ async function runDiagnostic() {
     if (!response.ok) new Error('API error ' + response.status);
 
     const data = await response.json();
+    console.log('API response:', JSON.stringify(data).substring(0, 500));
+    if (!data.content) throw new Error('No content in response: ' + JSON.stringify(data).substring(0, 200));
     const text = data.content.map(b => b.text || '').join('');
 
     // strip any markdown fences
