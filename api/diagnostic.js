@@ -25,23 +25,22 @@ export default async function handler(req, res) {
     let data;
     try { data = JSON.parse(text); } catch(e) { data = { raw: text }; }
 
-    // Always attempt Supabase save after successful response
-    if (response.ok) {
-      console.log('Attempting Supabase save for:', clientInfo?.name);
-      console.log('SUPABASE_URL present:', !!process.env.SUPABASE_URL);
-      console.log('SUPABASE_SERVICE_KEY present:', !!process.env.SUPABASE_SERVICE_KEY);
-
-      let outputToSave = null;
-      if (data.content) {
-        const outputText = data.content.map(b => b.text || '').join('');
-        try {
-          outputToSave = JSON.parse(outputText.replace(/```json|```/g, '').trim());
-        } catch(e) {
-          console.log('Output parse failed:', e.message);
-          outputToSave = { raw: outputText.substring(0, 500) };
-        }
+    // Parse output
+    let outputToSave = {};
+    if (data.content) {
+      const outputText = data.content.map(b => b.text || '').join('');
+      try {
+        outputToSave = JSON.parse(outputText.replace(/```json|```/g, '').trim());
+      } catch(e) {
+        outputToSave = { raw: outputText.substring(0, 1000) };
       }
+    }
 
+    // Send response to client immediately
+    res.status(response.status).json(data);
+
+    // Save to Supabase after response is sent
+    if (response.ok && process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY) {
       try {
         const sbRes = await fetch(process.env.SUPABASE_URL + '/rest/v1/diagnostics', {
           method: 'POST',
@@ -56,20 +55,18 @@ export default async function handler(req, res) {
             client_arr: clientInfo?.arr || '',
             client_stage: clientInfo?.stage || '',
             intake: intakeData || {},
-            output: outputToSave || {}
+            output: outputToSave
           })
         });
         const sbText = await sbRes.text();
-        console.log('Supabase status:', sbRes.status, 'response:', sbText);
+        console.log('Supabase:', sbRes.status, sbText.substring(0, 200));
       } catch(sbErr) {
-        console.log('Supabase save error:', sbErr.message);
+        console.log('Supabase error:', sbErr.message);
       }
     }
 
-    return res.status(response.status).json(data);
-
   } catch (err) {
     console.error('Handler error:', err.message);
-    return res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 }
