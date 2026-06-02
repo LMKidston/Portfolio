@@ -2,5 +2,10 @@
   "buildCommand": "",
   "outputDirectory": ".",
   "framework": null,
-  "cleanUrls": true
+  "cleanUrls": true,
+  "functions": {
+    "api/diagnostic.js": {
+      "maxDuration": 60
+    }
+  }
 }
