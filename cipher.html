@@ -1422,6 +1422,12 @@ async function runDiagnostic() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         accessCode: sessionStorage.getItem('cipher_code') || '',
+        clientInfo: {
+          name: document.getElementById('client-name')?.value || '',
+          arr: document.getElementById('client-arr')?.value || '',
+          stage: document.getElementById('client-stage')?.value || ''
+        },
+        intakeData: collectIntake(),
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4000,
         messages: [{ role: 'user', content: buildPrompt(intake) }]
