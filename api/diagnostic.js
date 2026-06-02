@@ -3,9 +3,8 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { accessCode, clientInfo, intakeData, ...body } = typeof req.body === 'string'
-    ? JSON.parse(req.body)
-    : req.body;
+  const parsed = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+  const { accessCode, clientInfo, intakeData, ...body } = parsed;
 
   if (accessCode !== process.env.CIPHER_ACCESS_CODE) {
     return res.status(401).json({ error: 'Invalid access code.' });
@@ -26,13 +25,24 @@ export default async function handler(req, res) {
     let data;
     try { data = JSON.parse(text); } catch(e) { data = { raw: text }; }
 
-    // Save to Supabase if successful
-    if (response.ok && data.content) {
-      const outputText = data.content.map(b => b.text || '').join('');
-      let parsedOutput;
-      try { parsedOutput = JSON.parse(outputText.replace(/```json|```/g, '').trim()); } catch(e) {}
+    // Always attempt Supabase save after successful response
+    if (response.ok) {
+      console.log('Attempting Supabase save for:', clientInfo?.name);
+      console.log('SUPABASE_URL present:', !!process.env.SUPABASE_URL);
+      console.log('SUPABASE_SERVICE_KEY present:', !!process.env.SUPABASE_SERVICE_KEY);
 
-      if (parsedOutput && process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
+      let outputToSave = null;
+      if (data.content) {
+        const outputText = data.content.map(b => b.text || '').join('');
+        try {
+          outputToSave = JSON.parse(outputText.replace(/```json|```/g, '').trim());
+        } catch(e) {
+          console.log('Output parse failed:', e.message);
+          outputToSave = { raw: outputText.substring(0, 500) };
+        }
+      }
+
+      try {
         const sbRes = await fetch(process.env.SUPABASE_URL + '/rest/v1/diagnostics', {
           method: 'POST',
           headers: {
@@ -46,17 +56,20 @@ export default async function handler(req, res) {
             client_arr: clientInfo?.arr || '',
             client_stage: clientInfo?.stage || '',
             intake: intakeData || {},
-            output: parsedOutput
+            output: outputToSave || {}
           })
         });
         const sbText = await sbRes.text();
         console.log('Supabase status:', sbRes.status, 'response:', sbText);
+      } catch(sbErr) {
+        console.log('Supabase save error:', sbErr.message);
       }
     }
 
     return res.status(response.status).json(data);
 
   } catch (err) {
+    console.error('Handler error:', err.message);
     return res.status(500).json({ error: err.message });
   }
 }
