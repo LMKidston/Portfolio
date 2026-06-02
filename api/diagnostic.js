@@ -36,18 +36,16 @@ export default async function handler(req, res) {
       }
     }
 
-    // Send response to client immediately
-    res.status(response.status).json(data);
-
-    // Save to Supabase after response is sent
-    if (response.ok && process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY) {
+    // Save to Supabase BEFORE returning response
+    if (response.ok) {
       try {
+        console.log('Saving to Supabase...');
         const sbRes = await fetch(process.env.SUPABASE_URL + '/rest/v1/diagnostics', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'apikey': process.env.SUPABASE_SERVICE_KEY,
-            'Authorization': 'Bearer ' + process.env.SUPABASE_SERVICE_KEY,
+            'apikey': process.env.SUPABASE_ANON_KEY,
+            'Authorization': 'Bearer ' + process.env.SUPABASE_ANON_KEY,
             'Prefer': 'return=minimal'
           },
           body: JSON.stringify({
@@ -59,14 +57,16 @@ export default async function handler(req, res) {
           })
         });
         const sbText = await sbRes.text();
-        console.log('Supabase:', sbRes.status, sbText.substring(0, 200));
+        console.log('Supabase result:', sbRes.status, sbText.substring(0, 300));
       } catch(sbErr) {
         console.log('Supabase error:', sbErr.message);
       }
     }
 
+    return res.status(response.status).json(data);
+
   } catch (err) {
     console.error('Handler error:', err.message);
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 }
