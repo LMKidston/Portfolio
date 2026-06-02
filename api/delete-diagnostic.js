@@ -1,0 +1,12 @@
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  const { id, accessCode } = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+  if (accessCode !== process.env.CIPHER_ACCESS_CODE) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const r = await fetch(process.env.SUPABASE_URL + '/rest/v1/diagnostics?id=eq.' + id, {
+      method: 'DELETE',
+      headers: { 'apikey': process.env.SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + process.env.SUPABASE_ANON_KEY, 'Prefer': 'return=minimal' }
+    });
+    return res.status(r.status).json({ ok: r.ok });
+  } catch(err) { return res.status(500).json({ error: err.message }); }
+}
