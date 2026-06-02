@@ -1451,6 +1451,21 @@ async function runDiagnostic() {
     document.getElementById('btn-run').disabled = false;
     showView('view-output');
 
+    // Save to Supabase via dedicated endpoint
+    try {
+      fetch('/api/save-diagnostic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_name: intake.client.name || 'Unknown',
+          client_arr: intake.client.arr || '',
+          client_stage: intake.client.stage || '',
+          intake: intake,
+          output: parsed
+        })
+      }).then(r => r.json()).then(d => console.log('Saved:', d)).catch(e => console.log('Save failed:', e));
+    } catch(e) { console.log('Save error:', e); }
+
   } catch (err) {
     clearInterval(stepInterval);
     document.getElementById('btn-run').disabled = false;
