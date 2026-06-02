@@ -7,6 +7,7 @@ export default async function handler(req, res) {
     ? JSON.parse(req.body) 
     : req.body;
 
+  console.log('Received code:', JSON.stringify(accessCode), 'Expected:', JSON.stringify(process.env.CIPHER_ACCESS_CODE));
   if (accessCode !== process.env.CIPHER_ACCESS_CODE) {
     return res.status(401).json({ error: 'Invalid access code.' });
   }
