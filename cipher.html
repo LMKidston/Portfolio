@@ -1475,6 +1475,91 @@ async function runDiagnostic() {
     errBox.textContent = 'Diagnostic failed: ' + err.message + '. Check that intake data is complete and try again.';
   }
 }
+
+// ── EDIT MODE: pre-fill from saved diagnostic ─────────────────────────────
+async function initEditMode() {
+  const params = new URLSearchParams(window.location.search);
+  const editId = params.get('edit');
+  if (!editId) return;
+
+  // Show loading state
+  document.getElementById('btn-run').disabled = true;
+  document.getElementById('btn-run').textContent = 'Loading...';
+
+  try {
+    const res = await fetch('/api/get-diagnostic', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: editId,
+        accessCode: sessionStorage.getItem('cipher_code') || ''
+      })
+    });
+    const data = await res.json();
+    if (!data.row || !data.row.intake) return;
+
+    const intake = data.row.intake;
+    const c = intake.client || {};
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+
+    // Client info
+    set('client-name', c.name); set('client-arr', c.arr); set('client-stage', c.stage);
+
+    // Funnel
+    const f = intake.funnel || {};
+    set('q01a', f.stages_and_rates); set('q01b', f.sales_cycle); set('q01c', f.win_rate); set('q01d', f.drop_off_read);
+
+    // Pipeline sources
+    const p = intake.pipeline_sources || {};
+    set('q02a', p.top_sources); set('q02b', p.best_campaigns); set('q02c', p.spend_now); set('q02d', p.spend_wish); set('q02e', p.what_stopped_working);
+
+    // Customer behavior
+    const cb = intake.customer_behavior || {};
+    set('q03a', cb.churn_rate); set('q03b', cb.nrr); set('q03c', cb.best_retention_segment); set('q03d', cb.fastest_churn_segment); set('q03e', cb.expand_churn_language);
+
+    // Narrative footprint
+    const n = intake.narrative_footprint || {};
+    set('q04a', n.homepage_headline); set('q04b', n.value_proposition); set('q04c', n.top_content); set('q04d', n.content_tone);
+
+    // Sales signal
+    const s = intake.sales_signal || {};
+    set('q05a', s.late_stage_objections); set('q05b', s.lost_deal_reasons); set('q05c', s.competitor_positioning); set('q05d', s.reference_language);
+
+    // ICP
+    const icp = intake.icp || {};
+    set('q06a', icp.icp_definition); set('q06b', icp.signing_titles); set('q06c', icp.champion_titles); set('q06d', icp.icp_vs_closed_won); set('q06e', icp.economic_buyer_messaging);
+
+    // CMO read
+    set('q07a', intake.cmo_read);
+
+    // Open all sections
+    document.querySelectorAll('.section').forEach(s => s.classList.add('open'));
+
+    // Add edit banner
+    const banner = document.createElement('div');
+    banner.style.cssText = 'background:#FDF8EE;border:1px solid #C8A060;border-radius:6px;padding:10px 16px;margin-bottom:1rem;font-size:12px;color:#7A5C20;font-family:DM Mono,monospace;letter-spacing:0.04em;';
+    banner.textContent = 'Editing saved diagnostic — ' + (c.name || 'Unknown') + '. Make changes and re-run.';
+    document.querySelector('.intake-header').after(banner);
+
+  } catch(err) {
+    console.log('Edit load error:', err);
+  } finally {
+    document.getElementById('btn-run').disabled = false;
+    document.getElementById('btn-run').textContent = 'Run Diagnostic';
+  }
+}
+
+// Run edit mode if gate is already passed
+if (sessionStorage.getItem('cipher_auth') === 'ok') {
+  initEditMode();
+}
+
+// Also run after gate is passed
+const origCheckGate = window.checkGate;
+window.checkGate = function() {
+  origCheckGate && origCheckGate();
+  setTimeout(initEditMode, 100);
+};
 </script>
 </body>
 </html>
