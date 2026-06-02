@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cipher · History</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--cream:#F7F4EE;--dark:#141210;--gold:#B8903C;--gold-lt:#C8A060;--gold-dk:#8A6520;--text:#1a1810;--sub:#595550;--border:#E0D8CC;--red:#993C1D;--green:#1D6B48}
+html,body{min-height:100%;font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text)}
+#gate{position:fixed;inset:0;background:var(--dark);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:1.5rem}
+#gate input{font-family:'DM Mono',monospace;font-size:13px;background:#1C1A17;border:1px solid #2A2820;border-radius:4px;padding:11px 14px;color:white;outline:none;text-align:center;letter-spacing:0.1em;width:280px}
+#gate button{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:#141210;background:#B8903C;border:none;border-radius:4px;padding:11px;cursor:pointer;width:280px}
+.header{background:var(--dark);border-bottom:1px solid #2A2820;padding:0 2.5rem;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100}
+.header-brand{display:flex;align-items:center;gap:10px}
+.hbar{width:2.5px;height:18px;background:var(--gold);border-radius:2px}
+.hname{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--gold);letter-spacing:0.14em;text-transform:uppercase}
+.htag{font-family:'DM Mono',monospace;font-size:9.5px;color:#444;margin-left:4px}
+.hlink{font-family:'DM Mono',monospace;font-size:10px;color:#444;text-decoration:none}
+.hlink:hover{color:var(--gold-dk)}
+.container{max-width:900px;margin:0 auto;padding:2.5rem 2rem 4rem}
+.page-eyebrow{font-family:'DM Mono',monospace;font-size:9.5px;color:var(--gold-dk);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:8px}
+.page-title{font-family:'EB Garamond',serif;font-size:2rem;color:var(--text);font-weight:400;margin-bottom:6px}
+.page-rule{width:40px;height:1.5px;background:var(--gold);margin:12px 0}
+.page-desc{font-size:13px;color:var(--sub);margin-bottom:2rem}
+.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin:4rem auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:4rem;color:var(--sub);font-family:'EB Garamond',serif;font-size:1.1rem;font-style:italic}
+.diag-list{display:flex;flex-direction:column;gap:10px}
+.diag-card{background:white;border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color 0.15s;overflow:hidden}
+.diag-card:hover{border-color:var(--gold-lt)}
+.diag-card-hdr{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem}
+.diag-card-left{display:flex;align-items:center;gap:1rem}
+.diag-score{font-family:'EB Garamond',serif;font-size:2rem;font-weight:400;line-height:1;min-width:52px;text-align:center}
+.diag-client{font-size:14px;font-weight:500;color:var(--text);margin-bottom:2px}
+.diag-meta{font-family:'DM Mono',monospace;font-size:9.5px;color:#aaa;letter-spacing:0.06em}
+.diag-card-right{display:flex;align-items:center;gap:12px}
+.diag-status{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:3px;border:1px solid currentColor}
+.diag-detail{display:none;border-top:1px solid var(--border);padding:1.25rem;background:var(--cream)}
+.diag-card.open .diag-detail{display:block}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.detail-section{background:white;border:1px solid var(--border);border-radius:6px;padding:1rem}
+.detail-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--gold-dk);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px}
+.stage-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+.stage-row:last-child{border-bottom:none}
+.stage-name{color:var(--sub);flex:1}
+.sbar-bg{width:80px;height:3px;background:var(--border);border-radius:2px;flex-shrink:0}
+.sbar-fill{height:3px;border-radius:2px}
+.stage-val{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;min-width:24px;text-align:right}
+.finding-item{padding:6px 0;border-bottom:1px solid var(--border);font-size:12.5px}
+.finding-item:last-child{border-bottom:none}
+.ftitle{color:var(--text);font-weight:500;margin-bottom:2px}
+.fthread{font-family:'DM Mono',monospace;font-size:9px;color:var(--gold-dk);letter-spacing:0.08em}
+.fix-item{padding:6px 0;border-bottom:1px solid var(--border);font-size:12.5px}
+.fix-item:last-child{border-bottom:none}
+.fix-name-row{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.fix-badge{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.1em;padding:1px 6px;border-radius:2px;border:1px solid currentColor}
+.fix-nm{color:var(--text);font-weight:500}
+.fix-act{color:var(--sub);line-height:1.4}
+.detail-actions{display:flex;gap:8px;margin-top:1rem}
+.btn-sm{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;border:none;border-radius:4px;padding:8px 16px;cursor:pointer}
+.btn-delete{background:#F5ECEA;color:var(--red)}
+.btn-tool{background:var(--dark);color:var(--gold)}
+.c-critical{color:#993C1D}.c-significant{color:#9A6010}.c-moderate{color:#8A7020}.c-strong{color:#1D6B48}
+.bg-critical{background:#993C1D}.bg-significant{background:#C8A060}.bg-moderate{background:#C8A060}.bg-strong{background:#1D6B48}
+</style>
+</head>
+<body>
+<div id="gate">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.5rem">
+    <div style="width:3px;height:20px;background:#B8903C;border-radius:2px"></div>
+    <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#B8903C;letter-spacing:0.14em;text-transform:uppercase">Cipher</div>
+  </div>
+  <div style="font-family:'EB Garamond',serif;font-size:1.4rem;color:white">Diagnostic History</div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <input id="gate-input" type="password" placeholder="Access code" onkeydown="if(event.key==='Enter')checkGate()">
+    <button onclick="checkGate()">Enter</button>
+    <div id="gate-error" style="font-family:'DM Mono',monospace;font-size:10px;color:#993C1D;text-align:center;display:none">Incorrect access code.</div>
+  </div>
+</div>
+<div class="header">
+  <div class="header-brand"><div class="hbar"></div><div class="hname">Cipher</div><div class="htag">· History</div></div>
+  <a href="/cipher" class="hlink">← Back to tool</a>
+</div>
+<div class="container">
+  <div class="page-eyebrow">Private · Lilian Kidston</div>
+  <h1 class="page-title">Diagnostic history.</h1>
+  <div class="page-rule"></div>
+  <div class="page-desc" id="page-desc">Loading...</div>
+  <div id="content"><div class="spinner"></div></div>
+</div>
+<script>
+const PASS='C1ph3r2026',KEY='cipher_auth';
+if(sessionStorage.getItem(KEY)==='ok'){document.getElementById('gate').style.display='none';loadHistory();}
+function checkGate(){
+  const val=document.getElementById('gate-input').value.trim();
+  if(val===PASS){sessionStorage.setItem(KEY,'ok');sessionStorage.setItem('cipher_code',val);document.getElementById('gate').style.display='none';loadHistory();}
+  else{document.getElementById('gate-error').style.display='block';document.getElementById('gate-input').value='';document.getElementById('gate-input').focus();}
+}
+function sc(n){return n>=7?'strong':n>=5.5?'moderate':n>=4?'significant':'critical'}
+function sl(n){return n>=7?'Strong':n>=5.5?'Moderate':n>=4?'Sig. Gap':'Critical'}
+function fd(ts){const d=new Date(ts);return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' · '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
+const STAGES=['Awareness (MQL)','Consideration','Evaluation','Decision'];
+async function loadHistory(){
+  try{
+    const res=await fetch('/api/get-diagnostics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accessCode:sessionStorage.getItem('cipher_code')||''})});
+    const data=await res.json();
+    if(!data.rows||data.rows.length===0){document.getElementById('page-desc').textContent='No diagnostics saved yet.';document.getElementById('content').innerHTML='<div class="empty">No past diagnostics found. Run your first diagnostic to see it here.</div>';return;}
+    document.getElementById('page-desc').textContent=data.rows.length+' diagnostic'+(data.rows.length!==1?'s':'')+' saved.';
+    renderList(data.rows);
+  }catch(err){document.getElementById('content').innerHTML='<div class="empty">Could not load history. Try refreshing.</div>';}
+}
+function renderList(rows){
+  const container=document.getElementById('content');
+  container.innerHTML='';
+  const list=document.createElement('div');
+  list.className='diag-list';
+  rows.forEach(row=>{
+    const score=row.output?.composite?.score||0;
+    const card=document.createElement('div');
+    card.className='diag-card';
+    card.innerHTML=`
+      <div class="diag-card-hdr" onclick="this.parentElement.classList.toggle('open')">
+        <div class="diag-card-left">
+          <div class="diag-score c-${sc(score)}">${score.toFixed(1)}</div>
+          <div><div class="diag-client">${row.client_name||'Unknown'}</div><div class="diag-meta">${row.client_stage||''} ${row.client_arr?'· '+row.client_arr:''} · ${fd(row.created_at)}</div></div>
+        </div>
+        <div class="diag-card-right"><span class="diag-status c-${sc(score)}">${sl(score)}</span><span style="color:#ccc;font-size:14px">›</span></div>
+      </div>
+      <div class="diag-detail">
+        <div class="detail-grid">
+          <div class="detail-section">
+            <div class="detail-label">Stage Scores</div>
+            ${(row.output?.stages||[]).map((s,i)=>`<div class="stage-row"><span class="stage-name">${STAGES[i]||'Stage '+(i+1)}</span><div class="sbar-bg"><div class="sbar-fill bg-${sc(s.score)}" style="width:${s.score*10}%"></div></div><span class="stage-val c-${sc(s.score)}">${s.score.toFixed(1)}</span></div>`).join('')}
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Findings</div>
+            ${(row.output?.findings||[]).map(f=>`<div class="finding-item"><div class="ftitle">${f.title}</div><div class="fthread">${f.thread_break}</div></div>`).join('')}
+          </div>
+        </div>
+        <div class="detail-section" style="margin-bottom:1rem">
+          <div class="detail-label">Fix Plan</div>
+          ${(row.output?.fixes||[]).map(f=>`<div class="fix-item"><div class="fix-name-row"><span class="fix-badge" style="color:${f.action_type==='REWRITE'?'#993C1D':'#2D5A8F'};border-color:currentColor">${f.action_type}</span><span class="fix-nm">${f.name}</span></div><div class="fix-act">${f.action}</div></div>`).join('')}
+        </div>
+        <div class="detail-actions">
+          <button class="btn-sm btn-tool" onclick="window.location.href='/cipher'">Run new diagnostic →</button>
+          <button class="btn-sm btn-delete" onclick="del('${row.id}',this.closest('.diag-card'))">Delete</button>
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+  container.appendChild(list);
+}
+async function del(id,card){
+  if(!confirm('Delete this diagnostic?'))return;
+  const r=await fetch('/api/delete-diagnostic',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,accessCode:sessionStorage.getItem('cipher_code')||''})});
+  if(r.ok){card.remove();const n=document.querySelectorAll('.diag-card').length;document.getElementById('page-desc').textContent=n+' diagnostic'+(n!==1?'s':'')+' saved.';}
+}
+</script>
+</body>
+</html>
