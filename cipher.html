@@ -747,6 +747,7 @@
     const val = document.getElementById('gate-input').value.trim().toLowerCase();
     if (val === PASS) {
       sessionStorage.setItem(KEY, 'ok');
+      sessionStorage.setItem('cipher_code', val);
       document.getElementById('gate').style.display = 'none';
     } else {
       document.getElementById('gate-error').style.display = 'block';
@@ -1420,6 +1421,7 @@ async function runDiagnostic() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        accessCode: sessionStorage.getItem('cipher_code') || '',
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4000,
         messages: [{ role: 'user', content: buildPrompt(intake) }]
