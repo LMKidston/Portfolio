@@ -33,7 +33,7 @@ export default async function handler(req, res) {
       try { parsedOutput = JSON.parse(outputText.replace(/```json|```/g, '').trim()); } catch(e) {}
 
       if (parsedOutput && process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
-        await fetch(process.env.SUPABASE_URL + '/rest/v1/diagnostics', {
+        const sbRes = await fetch(process.env.SUPABASE_URL + '/rest/v1/diagnostics', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -49,6 +49,8 @@ export default async function handler(req, res) {
             output: parsedOutput
           })
         });
+        const sbText = await sbRes.text();
+        console.log('Supabase status:', sbRes.status, 'response:', sbText);
       }
     }
 
