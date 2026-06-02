@@ -144,7 +144,7 @@ function renderList(rows){
           ${(row.output?.fixes||[]).map(f=>`<div class="fix-item"><div class="fix-name-row"><span class="fix-badge" style="color:${f.action_type==='REWRITE'?'#993C1D':'#2D5A8F'};border-color:currentColor">${f.action_type}</span><span class="fix-nm">${f.name}</span></div><div class="fix-act">${f.action}</div></div>`).join('')}
         </div>
         <div class="detail-actions">
-          <button class="btn-sm btn-tool" onclick="window.location.href='/cipher?edit='+row.id">Edit + re-run →</button>
+          <button class="btn-sm btn-tool" data-id="${row.id}" onclick="window.location.href='/cipher?edit='+this.dataset.id">Edit + re-run →</button>
           <button class="btn-sm btn-delete" onclick="del('${row.id}',this.closest('.diag-card'))">Delete</button>
         </div>
       </div>`;
