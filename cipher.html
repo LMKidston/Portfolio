@@ -744,7 +744,7 @@
     document.getElementById('gate').style.display = 'none';
   }
   window.checkGate = function() {
-    const val = document.getElementById('gate-input').value.trim().toLowerCase();
+    const val = document.getElementById('gate-input').value.trim();
     if (val === PASS) {
       sessionStorage.setItem(KEY, 'ok');
       sessionStorage.setItem('cipher_code', val);
